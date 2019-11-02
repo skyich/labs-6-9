@@ -28,6 +28,8 @@ namespace Task
             Clear();
             pictureBox1.Image = bmp;
             comboBox3.SelectedIndex = 0;
+            selectorAxis.SelectedIndex = 0;
+            comboBox1.SelectedIndex = 0;
         }
 
         public void Clear()
@@ -35,7 +37,6 @@ namespace Task
             g = Graphics.FromImage(pictureBox1.Image);
             g.Clear(pictureBox1.BackColor);
             pictureBox1.Image = pictureBox1.Image;
-            comboBox1.SelectedItem = "...";
         }
 
         public void ClearWithout()
@@ -73,9 +74,9 @@ namespace Task
                     break;
                 case "Фигура вращения":
                     lastPoint = PointF.Empty;
-                    //pictureBox1.MouseDown += pictureBox1_MouseDown;
-                    //pictureBox1.MouseMove += pictureBox1_MouseMove;
-                    //pictureBox1.MouseUp += pictureBox1_MouseUp;
+                    pictureBox1.MouseDown += pictureBox1_MouseDown;
+                    pictureBox1.MouseMove += pictureBox1_MouseMove;
+                    pictureBox1.MouseUp += pictureBox1_MouseUp;
                     forming = new List<PointF>();
                     break;
                 default:
@@ -284,7 +285,12 @@ namespace Task
 
         private void ButtonDrawSolid_Click(object sender, EventArgs e)
         {
+            pol = new Models.SolidOfRevolution(forming, 10, 'd');
 
+
+            pictureBox1.MouseDown -= pictureBox1_MouseDown;
+            pictureBox1.MouseMove -= pictureBox1_MouseMove;
+            pictureBox1.MouseUp -= pictureBox1_MouseUp;
         }
     }
 }

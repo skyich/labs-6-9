@@ -799,5 +799,53 @@ namespace Task
             }
 
         }
+
+        [Serializable]
+        public class SolidOfRevolution : Polyhedron
+        {
+            public SolidOfRevolution(List<PointF> forming, int splits, char axis)
+            {
+                var x_coord = forming.OrderBy(p => p.X).First().X;
+                var z_coord = forming.OrderBy(p => p.Y).Last().Y - forming.OrderBy(p => p.Y).First().Y;
+                center = new PointPol(x_coord, 0, z_coord);
+                vertices = new Dictionary<int, PointPol>();
+
+
+                for (int i = 0; i < forming.Count; ++i)
+                {
+                    var t = new PointPol(i, forming[i].X - x_coord, 0, forming[i].Y - z_coord, 1);
+                    vertices[t.index] = t;
+
+                }
+
+                for (int i = 0; i < vertices.Count - 1; ++i)
+                {
+                    edges3D.Add(new Edge(vertices[i].index, vertices[i + 1].index));
+                }
+
+                for (int i = 0; i < vertices.Count; i++)
+                {
+                    neighbors[i] = new List<int>();
+                }
+
+                neighbors[vertices[0].index].Add(vertices[1].index);
+                neighbors[vertices[vertices.Count - 1].index].Add(vertices[vertices.Count - 2].index);
+
+                for (int i = 1; i < vertices.Count - 1; ++i)
+                {
+                    neighbors[vertices[i].index].Add(vertices[i - 1].index);
+                    neighbors[vertices[i].index].Add(vertices[i + 1].index);
+                }
+
+                for (int i = 0; i < edges3D.Count; ++i)
+                {
+                    polygons.Add(new Polygon(new List<Edge> { edges3D[i] }));
+                }
+
+                double angle = 360 / splits; 
+                
+            }
+
+        }
     }
 }
