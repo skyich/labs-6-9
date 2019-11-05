@@ -58,6 +58,8 @@
             this.selectorAxis = new System.Windows.Forms.ComboBox();
             this.counterSplits = new System.Windows.Forms.TextBox();
             this.buttonDrawSolid = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -353,38 +355,65 @@
             "X",
             "Y",
             "Z"});
-            this.selectorAxis.Location = new System.Drawing.Point(342, 659);
+            this.selectorAxis.Location = new System.Drawing.Point(449, 652);
             this.selectorAxis.Margin = new System.Windows.Forms.Padding(4);
             this.selectorAxis.Name = "selectorAxis";
             this.selectorAxis.Size = new System.Drawing.Size(129, 24);
             this.selectorAxis.TabIndex = 35;
             this.selectorAxis.Text = "Выберите ось";
+            this.selectorAxis.Visible = false;
             // 
             // counterSplits
             // 
-            this.counterSplits.Location = new System.Drawing.Point(479, 661);
+            this.counterSplits.Location = new System.Drawing.Point(542, 681);
             this.counterSplits.Margin = new System.Windows.Forms.Padding(4);
             this.counterSplits.Name = "counterSplits";
             this.counterSplits.Size = new System.Drawing.Size(36, 22);
             this.counterSplits.TabIndex = 36;
             this.counterSplits.Text = "0";
+            this.counterSplits.Visible = false;
             // 
             // buttonDrawSolid
             // 
-            this.buttonDrawSolid.Location = new System.Drawing.Point(523, 654);
+            this.buttonDrawSolid.Location = new System.Drawing.Point(596, 647);
             this.buttonDrawSolid.Margin = new System.Windows.Forms.Padding(4);
             this.buttonDrawSolid.Name = "buttonDrawSolid";
             this.buttonDrawSolid.Size = new System.Drawing.Size(252, 36);
             this.buttonDrawSolid.TabIndex = 37;
             this.buttonDrawSolid.Text = "Нарисовать фигуру вращения";
             this.buttonDrawSolid.UseVisualStyleBackColor = true;
+            this.buttonDrawSolid.Visible = false;
             this.buttonDrawSolid.Click += new System.EventHandler(this.ButtonDrawSolid_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(404, 655);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(37, 17);
+            this.label5.TabIndex = 38;
+            this.label5.Text = "Ось:";
+            this.label5.Visible = false;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(369, 684);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(165, 17);
+            this.label6.TabIndex = 39;
+            this.label6.Text = "Количество разбиений:";
+            this.label6.Visible = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1579, 814);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.buttonDrawSolid);
             this.Controls.Add(this.counterSplits);
             this.Controls.Add(this.selectorAxis);
@@ -456,6 +485,8 @@
         private System.Windows.Forms.ComboBox selectorAxis;
         private System.Windows.Forms.TextBox counterSplits;
         private System.Windows.Forms.Button buttonDrawSolid;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
     }
 }
 

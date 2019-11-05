@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
+using System.Web.UI.DataVisualization.Charting;
 using System.Windows.Forms;
 
 
@@ -15,10 +17,9 @@ namespace Task
         static public Graphics g;
         public Bitmap bmp;
 
-        //для образующей фигуры вращения
-        PointF lastPoint;
-        bool isMouseDown;
-        List<PointF> forming; // образующая
+        public List<Point3D> forming; // образующая для фигру вращения
+        public int lastModel = -1; // форма последней нарисованной фигуры
+
         public Form1()
         {
             col = new Pen(Color.Black);
@@ -57,31 +58,39 @@ namespace Task
         //нарисовать
         private void button2_Click(object sender, EventArgs e)
         {
-            pol = new Models.Polyhedron();
-            switch (comboBox1.SelectedItem.ToString())
+            if (lastModel != comboBox1.SelectedIndex)
             {
-                case "Гексаэдр":
-                    pol = new Models.cube();
-                    break;
-                case "Тетраэдр":
-                    pol = new Models.Tetrahedron();
-                    break;
-                case "Октаэдр":
-                    pol = new Models.Octahedron();
-                    break;
-                case "Загрузить из файла":
-                    LoadFromFile();
-                    break;
-                case "Фигура вращения":
-                    lastPoint = PointF.Empty;
-                    pictureBox1.MouseDown += pictureBox1_MouseDown;
-                    pictureBox1.MouseMove += pictureBox1_MouseMove;
-                    pictureBox1.MouseUp += pictureBox1_MouseUp;
-                    forming = new List<PointF>();
-                    break;
-                default:
-                    return;
+                lastModel = comboBox1.SelectedIndex;
+                pol = new Models.Polyhedron();
+                switch (comboBox1.SelectedItem.ToString())
+                {
+                    case "Гексаэдр":
+                        pol = new Models.cube();
+                        break;
+                    case "Тетраэдр":
+                        pol = new Models.Tetrahedron();
+                        break;
+                    case "Октаэдр":
+                        pol = new Models.Octahedron();
+                        break;
+                    case "Загрузить из файла":
+                        LoadFromFile();
+                        break;
+                    case "Фигура вращения":
+                        label5.Visible = true;
+                        label6.Visible = true;
+                        selectorAxis.Visible = true;
+                        counterSplits.Visible = true;
+                        buttonDrawSolid.Visible = true;
+
+                        LoadSolid();
+                        break;
+                    default:
+                        return;
+                }
             }
+
+
             switch (comboBox3.SelectedItem.ToString())
             {
                 case "Изометрическая":
@@ -248,49 +257,54 @@ namespace Task
             }
         }
 
-        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        // Загрузить файл с координатами образующей для фигуры вращения
+        public void LoadSolid()
         {
-            lastPoint = e.Location;
-            isMouseDown = true;
-        }
-
-        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (isMouseDown == true)
+            using (var openFileDialog = new OpenFileDialog())
             {
-                if (lastPoint != null)
+                openFileDialog.Filter = "Файл образующей|*.txt";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    if (pictureBox1.Image == null)
+                    forming = new List<Point3D>();
+                    string text;
+                    using (TextReader reader = File.OpenText(openFileDialog.FileName))
                     {
-                        Bitmap bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-                        pictureBox1.Image = bmp;
+                        while ((text = reader.ReadLine()) != null)
+                        {
+                            string[] bits = text.Split(',');
+                            float x = float.Parse(bits[0]);
+                            float y = float.Parse(bits[1]);
+                            float z = float.Parse(bits[2]);
+                            forming.Add(new Point3D(x, y, z));
+                        }
                     }
-                    using (Graphics g = Graphics.FromImage(pictureBox1.Image))
-                    {
-                        forming.Add(lastPoint);
-                        g.DrawLine(new Pen(Color.Black, 2), lastPoint, e.Location);
-                        g.SmoothingMode = SmoothingMode.AntiAlias;
-                    }
-                    pictureBox1.Invalidate();
-                    lastPoint = e.Location;
+                }
+                else
+                {
+                    label5.Visible = false;
+                    label6.Visible = false;
+                    selectorAxis.Visible = false;
+                    counterSplits.Visible = false;
+                    buttonDrawSolid.Visible = false;
                 }
             }
         }
 
-        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
-        {
-            isMouseDown = false;
-            lastPoint = Point.Empty;
-        }
-
         private void ButtonDrawSolid_Click(object sender, EventArgs e)
         {
-            pol = new Models.SolidOfRevolution(forming, 10, 'd');
+            label5.Visible = false;
+            label6.Visible = false;
+            selectorAxis.Visible = false;
+            counterSplits.Visible = false;
+            buttonDrawSolid.Visible = false;
 
+            var splits = Int32.Parse(counterSplits.Text);
+            pol = new Models.SolidOfRevolution(forming, splits, selectorAxis.SelectedIndex);
+            ClearWithout();
+            draw_model();
+            pictureBox1.Image = pictureBox1.Image;
 
-            pictureBox1.MouseDown -= pictureBox1_MouseDown;
-            pictureBox1.MouseMove -= pictureBox1_MouseMove;
-            pictureBox1.MouseUp -= pictureBox1_MouseUp;
         }
     }
 }

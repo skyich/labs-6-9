@@ -803,47 +803,54 @@ namespace Task
         [Serializable]
         public class SolidOfRevolution : Polyhedron
         {
-            public SolidOfRevolution(List<PointF> forming, int splits, char axis)
+            public SolidOfRevolution(List<System.Web.UI.DataVisualization.Charting.Point3D> forming, int splits, int axis)
             {
-                var x_coord = forming.OrderBy(p => p.X).First().X;
-                var z_coord = forming.OrderBy(p => p.Y).Last().Y - forming.OrderBy(p => p.Y).First().Y;
-                center = new PointPol(x_coord, 0, z_coord);
-                vertices = new Dictionary<int, PointPol>();
+                var c_x = _form.pictureBox1.Image.Height / 2;
+                center = new PointPol(c_x, c_x, c_x); // центр фигуры
 
-
+                vertices = new Dictionary<int, PointPol>(); // точки 
                 for (int i = 0; i < forming.Count; ++i)
                 {
-                    var t = new PointPol(i, forming[i].X - x_coord, 0, forming[i].Y - z_coord, 1);
-                    vertices[t.index] = t;
-
+                    var t = new PointPol(i, forming[i].X, forming[i].Y, forming[i].Z, 1);
+                    vertices[i] = t;
                 }
 
                 for (int i = 0; i < vertices.Count - 1; ++i)
                 {
-                    edges3D.Add(new Edge(vertices[i].index, vertices[i + 1].index));
+                    edges3D.Add(new Edge(vertices[i].index, vertices[i + 1].index)); // ребра
                 }
 
-                for (int i = 0; i < vertices.Count; i++)
+                double angle = (double)360 / splits; // угол поворота
+                var cos = Math.Cos(angle * Math.PI / 180);
+                var sin = Math.Sin(angle * Math.PI / 180);
+                var count = vertices.Count; // количество точек, которые поворачиваем
+
+                for (int i = 0; i < splits - 1; ++i)
                 {
-                    neighbors[i] = new List<int>();
+                    for (int j = 0; j < count; j++)
+                    {
+                        PointPol pp = vertices[j + count * i].roration(axis, cos, sin);
+                        pp.index = j + count * (i + 1);
+                        vertices.Add(pp.index, pp);
+                    }
+
+                    for (int j = count * (i + 1); j < count * (i + 2) - 1; ++j)
+                    {
+                        edges3D.Add(new Edge(j, j + 1));
+                    }
+
+                    // соединяем все точки предыдущего ребра с соответсвующими точками текущего
+                    for (int j = count * i; j < count * (i + 1); ++j)
+                    {
+                        edges3D.Add(new Edge(j, j + count));
+                    }
                 }
-
-                neighbors[vertices[0].index].Add(vertices[1].index);
-                neighbors[vertices[vertices.Count - 1].index].Add(vertices[vertices.Count - 2].index);
-
-                for (int i = 1; i < vertices.Count - 1; ++i)
+                // соединяем последнее ребро с начальным
+                for (int i = 0; i < count; ++i)
                 {
-                    neighbors[vertices[i].index].Add(vertices[i - 1].index);
-                    neighbors[vertices[i].index].Add(vertices[i + 1].index);
+                    edges3D.Add(new Edge(count * (splits - 1) + i, i));
                 }
 
-                for (int i = 0; i < edges3D.Count; ++i)
-                {
-                    polygons.Add(new Polygon(new List<Edge> { edges3D[i] }));
-                }
-
-                double angle = 360 / splits; 
-                
             }
 
         }
