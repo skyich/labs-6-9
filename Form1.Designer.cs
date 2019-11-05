@@ -61,6 +61,12 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.buttonDrawPlot3D = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.counterSplits2 = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.textBox_x1 = new System.Windows.Forms.TextBox();
+            this.textBox_x2 = new System.Windows.Forms.TextBox();
+            this.selectorFunc = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -411,20 +417,95 @@
             // 
             // buttonDrawPlot3D
             // 
-            this.buttonDrawPlot3D.Location = new System.Drawing.Point(596, 743);
+            this.buttonDrawPlot3D.Location = new System.Drawing.Point(596, 748);
             this.buttonDrawPlot3D.Margin = new System.Windows.Forms.Padding(4);
             this.buttonDrawPlot3D.Name = "buttonDrawPlot3D";
             this.buttonDrawPlot3D.Size = new System.Drawing.Size(252, 36);
             this.buttonDrawPlot3D.TabIndex = 40;
             this.buttonDrawPlot3D.Text = "Нарисовать сегмент поверхности";
             this.buttonDrawPlot3D.UseVisualStyleBackColor = true;
+            this.buttonDrawPlot3D.Visible = false;
             this.buttonDrawPlot3D.Click += new System.EventHandler(this.ButtonDrawPlot3D_Click);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(368, 784);
+            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(165, 17);
+            this.label7.TabIndex = 42;
+            this.label7.Text = "Количество разбиений:";
+            this.label7.Visible = false;
+            // 
+            // counterSplits2
+            // 
+            this.counterSplits2.Location = new System.Drawing.Point(541, 781);
+            this.counterSplits2.Margin = new System.Windows.Forms.Padding(4);
+            this.counterSplits2.Name = "counterSplits2";
+            this.counterSplits2.Size = new System.Drawing.Size(36, 22);
+            this.counterSplits2.TabIndex = 41;
+            this.counterSplits2.Text = "0";
+            this.counterSplits2.Visible = false;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(413, 758);
+            this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(76, 17);
+            this.label8.TabIndex = 43;
+            this.label8.Text = "Интервал:";
+            this.label8.Visible = false;
+            // 
+            // textBox_x1
+            // 
+            this.textBox_x1.Location = new System.Drawing.Point(497, 755);
+            this.textBox_x1.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox_x1.Name = "textBox_x1";
+            this.textBox_x1.Size = new System.Drawing.Size(36, 22);
+            this.textBox_x1.TabIndex = 45;
+            this.textBox_x1.Text = "0";
+            this.textBox_x1.Visible = false;
+            // 
+            // textBox_x2
+            // 
+            this.textBox_x2.Location = new System.Drawing.Point(542, 755);
+            this.textBox_x2.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox_x2.Name = "textBox_x2";
+            this.textBox_x2.Size = new System.Drawing.Size(36, 22);
+            this.textBox_x2.TabIndex = 44;
+            this.textBox_x2.Text = "0";
+            this.textBox_x2.Visible = false;
+            // 
+            // selectorFunc
+            // 
+            this.selectorFunc.FormattingEnabled = true;
+            this.selectorFunc.Items.AddRange(new object[] {
+            "cos(x) + sin(y)",
+            "(x + y) ^ 2",
+            "cos(x + y)",
+            "sqrt(x + y)"});
+            this.selectorFunc.Location = new System.Drawing.Point(449, 723);
+            this.selectorFunc.Margin = new System.Windows.Forms.Padding(4);
+            this.selectorFunc.Name = "selectorFunc";
+            this.selectorFunc.Size = new System.Drawing.Size(129, 24);
+            this.selectorFunc.TabIndex = 46;
+            this.selectorFunc.Text = "Функция";
+            this.selectorFunc.Visible = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1579, 814);
+            this.Controls.Add(this.selectorFunc);
+            this.Controls.Add(this.textBox_x1);
+            this.Controls.Add(this.textBox_x2);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.counterSplits2);
             this.Controls.Add(this.buttonDrawPlot3D);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -502,6 +583,12 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button buttonDrawPlot3D;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox counterSplits2;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox textBox_x1;
+        private System.Windows.Forms.TextBox textBox_x2;
+        private System.Windows.Forms.ComboBox selectorFunc;
     }
 }
 

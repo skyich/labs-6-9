@@ -867,9 +867,9 @@ namespace Task
 
                 // добавим все точки поверхности
                 int i = 0;
-                for (double x = x1; x <= x2; x += step)
+                for (double x = x1; x < x2 + 0.001; x += step) // 0.001 - погрешность
                 {
-                   for (double y = x1; y <= x2; y += step)
+                   for (double y = x1; y < x2 + 0.001; y += step)
                     {
                         var t = new PointPol(i, x, y, func(x, y), 1);
                         vertices.Add(i, t);
@@ -880,9 +880,9 @@ namespace Task
 
                 //все ребра, кроме последнего слоя
                 i = 0;
-                for (double x = x1; x <= x2 - 1; x += step)
+                for (double x = x1; x < x2 - step + 0.001; x += step)
                 {
-                    for (double y = x1; y <= x2 - 1; y += step)
+                    for (double y = x1; y < x2 - step + 0.001; y += step)
                     {
                         edges3D.Add(new Edge(i, i + 1));
                         edges3D.Add(new Edge(i, i + splits + 1));

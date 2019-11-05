@@ -85,7 +85,13 @@ namespace Task
                         LoadSolid();
                         break;
                     case "Сегмент поверхности":
-                        
+                        selectorFunc.Visible = true;
+                        label8.Visible = true;
+                        textBox_x1.Visible = true;
+                        textBox_x2.Visible = true;
+                        label7.Visible = true;
+                        counterSplits2.Visible = true;
+                        buttonDrawPlot3D.Visible = true;
                         break;
                     default:
                         return;
@@ -311,9 +317,35 @@ namespace Task
 
         private void ButtonDrawPlot3D_Click(object sender, EventArgs e)
         {
-            Func<double, double, double> test = (x, y) => Math.Sin(x) + Math.Cos(y) + y * y;
-            
-            pol = new Models.Plot3D(test, -10, 10, 20);
+            selectorFunc.Visible = false;
+            label8.Visible = false;
+            textBox_x1.Visible = false;
+            textBox_x2.Visible = false;
+            label7.Visible = false;
+            counterSplits2.Visible = false;
+            buttonDrawPlot3D.Visible = false;
+            var x1 = Int32.Parse(textBox_x1.Text);
+            var x2 = Int32.Parse(textBox_x2.Text);
+            var splits = Int32.Parse(counterSplits2.Text);
+            Func<double, double, double> f = (x, y) => x + y;
+            switch (selectorFunc.SelectedIndex)
+            {
+                case 0:
+                    f = (x, y) => Math.Cos(x) + Math.Sin(y);
+                    break;
+                case 1:
+                    f = (x, y) => (x + y) * (x + y);
+                    break;
+                case 2:
+                    f = (x, y) => Math.Cos(x + y);
+                    break;
+                case 3:
+                    f = (x, y) => Math.Sqrt(x + y);
+                    break;
+            }
+
+
+            pol = new Models.Plot3D(f, x1, x2, splits);
             ClearWithout();
             draw_model();
             pictureBox1.Image = pictureBox1.Image;
