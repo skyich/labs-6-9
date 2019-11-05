@@ -854,5 +854,56 @@ namespace Task
             }
 
         }
+
+        [Serializable]
+        public class Plot3D : Polyhedron
+        {
+            public Plot3D(Func<double, double, double> func, int x1, int x2, int splits)
+            {
+                double step = (double)(x2 - x1) / splits;
+                var c_x = _form.pictureBox1.Image.Height / 2;
+                center = new PointPol(c_x, c_x, c_x); // центр фигуры
+                vertices = new Dictionary<int, PointPol>(); // точки 
+
+                // добавим все точки поверхности
+                int i = 0;
+                for (double x = x1; x <= x2; x += step)
+                {
+                   for (double y = x1; y <= x2; y += step)
+                    {
+                        var t = new PointPol(i, x, y, func(x, y), 1);
+                        vertices.Add(i, t);
+                        i += 1;
+                    }
+                }
+                int last_point = i - 1;
+
+                //все ребра, кроме последнего слоя
+                i = 0;
+                for (double x = x1; x <= x2 - 1; x += step)
+                {
+                    for (double y = x1; y <= x2 - 1; y += step)
+                    {
+                        edges3D.Add(new Edge(i, i + 1));
+                        edges3D.Add(new Edge(i, i + splits + 1));
+                        i += 1;
+                    }
+                    i += 1;
+                }
+
+                // ребра для последнего слоя
+                for (int j = 0; j < splits; ++j)
+                {
+                     edges3D.Add(new Edge(i, i + 1));
+                     i += 1;
+                }
+
+                for (int j = splits; j < last_point; j += splits + 1)
+                {
+                   edges3D.Add(new Edge(j, j + splits + 1));
+                }
+            }
+
+        }
     }
 }

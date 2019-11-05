@@ -82,8 +82,10 @@ namespace Task
                         selectorAxis.Visible = true;
                         counterSplits.Visible = true;
                         buttonDrawSolid.Visible = true;
-
                         LoadSolid();
+                        break;
+                    case "Сегмент поверхности":
+                        
                         break;
                     default:
                         return;
@@ -305,6 +307,16 @@ namespace Task
             draw_model();
             pictureBox1.Image = pictureBox1.Image;
 
+        }
+
+        private void ButtonDrawPlot3D_Click(object sender, EventArgs e)
+        {
+            Func<double, double, double> test = (x, y) => Math.Sin(x) + Math.Cos(y) + y * y;
+            
+            pol = new Models.Plot3D(test, -10, 10, 20);
+            ClearWithout();
+            draw_model();
+            pictureBox1.Image = pictureBox1.Image;
         }
     }
 }

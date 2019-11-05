@@ -60,6 +60,7 @@
             this.buttonDrawSolid = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.buttonDrawPlot3D = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -104,7 +105,8 @@
             "Тетраэдр",
             "Октаэдр",
             "Загрузить из файла",
-            "Фигура вращения"});
+            "Фигура вращения",
+            "Сегмент поверхности"});
             this.comboBox1.Location = new System.Drawing.Point(20, 159);
             this.comboBox1.Margin = new System.Windows.Forms.Padding(4);
             this.comboBox1.Name = "comboBox1";
@@ -407,11 +409,23 @@
             this.label6.Text = "Количество разбиений:";
             this.label6.Visible = false;
             // 
+            // buttonDrawPlot3D
+            // 
+            this.buttonDrawPlot3D.Location = new System.Drawing.Point(596, 743);
+            this.buttonDrawPlot3D.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonDrawPlot3D.Name = "buttonDrawPlot3D";
+            this.buttonDrawPlot3D.Size = new System.Drawing.Size(252, 36);
+            this.buttonDrawPlot3D.TabIndex = 40;
+            this.buttonDrawPlot3D.Text = "Нарисовать сегмент поверхности";
+            this.buttonDrawPlot3D.UseVisualStyleBackColor = true;
+            this.buttonDrawPlot3D.Click += new System.EventHandler(this.ButtonDrawPlot3D_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1579, 814);
+            this.Controls.Add(this.buttonDrawPlot3D);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.buttonDrawSolid);
@@ -487,6 +501,7 @@
         private System.Windows.Forms.Button buttonDrawSolid;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button buttonDrawPlot3D;
     }
 }
 
