@@ -324,8 +324,8 @@ namespace Task
             label7.Visible = false;
             counterSplits2.Visible = false;
             buttonDrawPlot3D.Visible = false;
-            var x1 = Int32.Parse(textBox_x1.Text);
-            var x2 = Int32.Parse(textBox_x2.Text);
+            var x1 = Double.Parse(textBox_x1.Text);
+            var x2 = Double.Parse(textBox_x2.Text);
             var splits = Int32.Parse(counterSplits2.Text);
             Func<double, double, double> f = (x, y) => x + y;
             switch (selectorFunc.SelectedIndex)
