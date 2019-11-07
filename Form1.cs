@@ -11,6 +11,7 @@ namespace Task
 {
     public partial class Form1 : Form
     {
+        Models.Axis axis = new Models.Axis();
         Models.Polyhedron pol;
         static Pen col;
         static int projection = 1;
@@ -49,10 +50,20 @@ namespace Task
 
         public void draw_model()
         {
+            axis.shift(100, 100, 100);
+            pol.shift(100, 100, 100);
+
             pol.Display(projection);
+            axis.Display(projection);
             g.SmoothingMode = SmoothingMode.AntiAlias; // сглаживание
             foreach (var i in pol.edges)
                 g.DrawLine(col, i.Item1, i.Item2);
+
+            foreach (var i in axis.edges)
+                g.DrawLine(col, i.Item1, i.Item2);
+
+            axis.shift(-100, -100, -100);
+            pol.shift(-100, -100, -100);
         }
 
         //нарисовать
@@ -65,13 +76,13 @@ namespace Task
                 switch (comboBox1.SelectedItem.ToString())
                 {
                     case "Гексаэдр":
-                        pol = new Models.cube();
+                        pol = new Models.cube(pictureBox1.Height/2);
                         break;
                     case "Тетраэдр":
-                        pol = new Models.Tetrahedron();
+                        pol = new Models.Tetrahedron(pictureBox1.Height / 2);
                         break;
                     case "Октаэдр":
-                        pol = new Models.Octahedron();
+                        pol = new Models.Octahedron(pictureBox1.Height / 2);
                         break;
                     case "Загрузить из файла":
                         LoadFromFile();
@@ -308,7 +319,7 @@ namespace Task
             buttonDrawSolid.Visible = false;
 
             var splits = Int32.Parse(counterSplits.Text);
-            pol = new Models.SolidOfRevolution(forming, splits, selectorAxis.SelectedIndex);
+            pol = new Models.SolidOfRevolution(forming, splits, selectorAxis.SelectedIndex, pictureBox1.Height / 2);
             ClearWithout();
             draw_model();
             pictureBox1.Image = pictureBox1.Image;
@@ -345,7 +356,7 @@ namespace Task
             }
 
 
-            pol = new Models.Plot3D(f, x1, x2, splits);
+            pol = new Models.Plot3D(f, x1, x2, splits, pictureBox1.Height / 2);
             ClearWithout();
             draw_model();
             pictureBox1.Image = pictureBox1.Image;
