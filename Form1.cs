@@ -12,7 +12,7 @@ namespace Task
     public partial class Form1 : Form
     {
         Models.Axis axis = new Models.Axis();
-        Models.Polyhedron pol;
+        List<Models.Polyhedron> pols = new List<Models.Polyhedron>();
         static Pen col;
         static int projection = 1;
         static public Graphics g;
@@ -32,10 +32,12 @@ namespace Task
             comboBox3.SelectedIndex = 0;
             selectorAxis.SelectedIndex = 0;
             comboBox1.SelectedIndex = 0;
+            comboBox4.SelectedIndex = 0;
         }
 
         public void Clear()
         {
+            pols.Clear();
             g = Graphics.FromImage(pictureBox1.Image);
             g.Clear(pictureBox1.BackColor);
             pictureBox1.Image = pictureBox1.Image;
@@ -48,68 +50,31 @@ namespace Task
             pictureBox1.Image = pictureBox1.Image;
         }
 
-        public void draw_model()
+        public void draw_models()
         {
             axis.shift(100, 100, 100);
-            pol.shift(100, 100, 100);
+            foreach (var pol in pols)
+                pol.shift(100, 100, 100);
 
-            pol.Display(projection);
+            foreach (var pol in pols)
+                pol.Display(projection);
+
             axis.Display(projection);
             g.SmoothingMode = SmoothingMode.AntiAlias; // сглаживание
-            foreach (var i in pol.edges)
-                g.DrawLine(col, i.Item1, i.Item2);
+            foreach(var pol in pols)
+                foreach (var i in pol.edges)
+                    g.DrawLine(col, i.Item1, i.Item2);
 
             foreach (var i in axis.edges)
                 g.DrawLine(col, i.Item1, i.Item2);
 
             axis.shift(-100, -100, -100);
-            pol.shift(-100, -100, -100);
+            foreach(var pol in pols)
+                pol.shift(-100, -100, -100);
         }
 
-        //нарисовать
-        private void button2_Click(object sender, EventArgs e)
+        private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (lastModel != comboBox1.SelectedIndex)
-            {
-                lastModel = comboBox1.SelectedIndex;
-                pol = new Models.Polyhedron();
-                switch (comboBox1.SelectedItem.ToString())
-                {
-                    case "Гексаэдр":
-                        pol = new Models.cube(pictureBox1.Height/2);
-                        break;
-                    case "Тетраэдр":
-                        pol = new Models.Tetrahedron(pictureBox1.Height / 2);
-                        break;
-                    case "Октаэдр":
-                        pol = new Models.Octahedron(pictureBox1.Height / 2);
-                        break;
-                    case "Загрузить из файла":
-                        LoadFromFile();
-                        break;
-                    case "Фигура вращения":
-                        label5.Visible = true;
-                        label6.Visible = true;
-                        selectorAxis.Visible = true;
-                        counterSplits.Visible = true;
-                        buttonDrawSolid.Visible = true;
-                        LoadSolid();
-                        break;
-                    case "Сегмент поверхности":
-                        selectorFunc.Visible = true;
-                        label8.Visible = true;
-                        textBox_x1.Visible = true;
-                        textBox_x2.Visible = true;
-                        label7.Visible = true;
-                        counterSplits2.Visible = true;
-                        buttonDrawPlot3D.Visible = true;
-                        break;
-                    default:
-                        return;
-                }
-            }
-
-
             switch (comboBox3.SelectedItem.ToString())
             {
                 case "Изометрическая":
@@ -132,8 +97,57 @@ namespace Task
             }
 
             ClearWithout();
+ 
+            draw_models();
 
-            draw_model();
+            pictureBox1.Image = pictureBox1.Image;
+        }
+
+        //добавить новый объект
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Models.Polyhedron pol = new Models.Polyhedron();
+            switch (comboBox1.SelectedItem.ToString())
+            {
+                case "Гексаэдр":
+                    pol = new Models.cube(pictureBox1.Height / 2);
+                    break;
+                case "Тетраэдр":
+                    pol = new Models.Tetrahedron(pictureBox1.Height / 2);
+                    break;
+                case "Октаэдр":
+                    pol = new Models.Octahedron(pictureBox1.Height / 2);
+                    break;
+                case "Загрузить из файла":
+                    LoadFromFile();
+                    break;
+                case "Фигура вращения":
+                    label5.Visible = true;
+                    label6.Visible = true;
+                    selectorAxis.Visible = true;
+                    counterSplits.Visible = true;
+                    buttonDrawSolid.Visible = true;
+                    LoadSolid();
+                    break;
+                case "Сегмент поверхности":
+                    selectorFunc.Visible = true;
+                    label8.Visible = true;
+                    textBox_x1.Visible = true;
+                    textBox_x2.Visible = true;
+                    label7.Visible = true;
+                    counterSplits2.Visible = true;
+                    buttonDrawPlot3D.Visible = true;
+                    break;
+                default:
+                    return;
+            }
+
+
+            pols.Add(pol);
+
+            ClearWithout();
+
+            draw_models();
 
             pictureBox1.Image = pictureBox1.Image;
         }
@@ -147,11 +161,16 @@ namespace Task
         //масштабирование
         private void button3_Click(object sender, EventArgs e)
         {
+            if (Convert.ToInt32(textBox4.Text) < 0 || Convert.ToInt32(textBox4.Text) >= pols.Count)
+                return;
+
+            Models.Polyhedron pol = pols[Convert.ToInt32(textBox4.Text)];
+
             double ind_scale = Double.Parse(textBox5.Text);
             pol.scale(ind_scale);
             ClearWithout();
 
-            draw_model();
+            draw_models();
 
             pictureBox1.Image = pictureBox1.Image;
 
@@ -161,6 +180,11 @@ namespace Task
         //смещение
         private void button4_Click(object sender, EventArgs e)
         {
+            if (Convert.ToInt32(textBox4.Text) < 0 || Convert.ToInt32(textBox4.Text) >= pols.Count)
+                return;
+
+            Models.Polyhedron pol = pols[Convert.ToInt32(textBox4.Text)];
+
             double x = Double.Parse(textBox6.Text);
             double y = Double.Parse(textBox7.Text);
             double z = Double.Parse(textBox8.Text);
@@ -168,7 +192,7 @@ namespace Task
             pol.shift(x, y, z);
             ClearWithout();
 
-            draw_model();
+            draw_models();
 
             pictureBox1.Image = pictureBox1.Image;
         }
@@ -176,6 +200,11 @@ namespace Task
         //отражение
         private void button5_Click(object sender, EventArgs e)
         {
+            if (Convert.ToInt32(textBox4.Text) < 0 || Convert.ToInt32(textBox4.Text) >= pols.Count)
+                return;
+
+            Models.Polyhedron pol = pols[Convert.ToInt32(textBox4.Text)];
+
             int reflec;
 
             switch (comboBox2.Text)
@@ -196,7 +225,7 @@ namespace Task
             pol.reflection(reflec);
             ClearWithout();
 
-            draw_model();
+            draw_models();
 
             pictureBox1.Image = pictureBox1.Image;
         }
@@ -204,6 +233,11 @@ namespace Task
         //поворот вокруг произвольной прямой
         private void button6_Click(object sender, EventArgs e)
         {
+            if (Convert.ToInt32(textBox4.Text) < 0 || Convert.ToInt32(textBox4.Text) >= pols.Count)
+                return;
+
+            Models.Polyhedron pol = pols[Convert.ToInt32(textBox4.Text)];
+
             double x1 = Double.Parse(textBoxX1.Text);
             double y1 = Double.Parse(textBoxY1.Text);
             double z1 = Double.Parse(textBoxZ1.Text);
@@ -219,7 +253,7 @@ namespace Task
             pol.rotation(start_point, line, angle);
             ClearWithout();
 
-            draw_model();
+            draw_models();
 
             pictureBox1.Image = pictureBox1.Image;
         }
@@ -227,13 +261,18 @@ namespace Task
         //поворот вокруг прямой, проходящей через начало координат и центр объекта
         private void button7_Click(object sender, EventArgs e)
         {
+            if (Convert.ToInt32(textBox4.Text) < 0 || Convert.ToInt32(textBox4.Text) >= pols.Count)
+                return;
+
+            Models.Polyhedron pol = pols[Convert.ToInt32(textBox4.Text)];
+
             double[,] start_point = { { 0, 0, 0 } };
             double[,] line = { { pol.center.X, pol.center.Y, pol.center.Z, 1 } };
             double angle = (Convert.ToDouble(textBoxAngle.Text) / 180) * Math.PI;
             pol.rotation(start_point, line, angle);
             ClearWithout();
 
-            draw_model();
+            draw_models();
 
             pictureBox1.Image = pictureBox1.Image;
         }
@@ -241,6 +280,11 @@ namespace Task
         // Сохранить модель в файл
         private void SaveButton_Click(object sender, EventArgs e)
         {
+            if (Convert.ToInt32(textBox4.Text) < 0 || Convert.ToInt32(textBox4.Text) >= pols.Count)
+                return;
+
+            Models.Polyhedron pol = pols[Convert.ToInt32(textBox4.Text)];
+
             if (pol != null)
             {
                 using (var saveFileDialog = new SaveFileDialog())
@@ -264,6 +308,8 @@ namespace Task
         // Загрузить модель из файла
         public void LoadFromFile()
         {
+            Models.Polyhedron pol = new Models.Polyhedron();
+
             using (var openFileDialog = new OpenFileDialog())
             {
                 openFileDialog.Filter = "Файл модели|*.model";
@@ -274,6 +320,8 @@ namespace Task
                     pol = Models.Polyhedron.ReadFromFile(openFileDialog.FileName);
                 }
             }
+
+            pols.Add(pol);
         }
 
         // Загрузить файл с координатами образующей для фигуры вращения
@@ -312,6 +360,9 @@ namespace Task
 
         private void ButtonDrawSolid_Click(object sender, EventArgs e)
         {
+
+            Models.Polyhedron pol;
+
             label5.Visible = false;
             label6.Visible = false;
             selectorAxis.Visible = false;
@@ -320,8 +371,11 @@ namespace Task
 
             var splits = Int32.Parse(counterSplits.Text);
             pol = new Models.SolidOfRevolution(forming, splits, selectorAxis.SelectedIndex, pictureBox1.Height / 2);
+
+            pols.Add(pol);
+
             ClearWithout();
-            draw_model();
+            draw_models();
             pictureBox1.Image = pictureBox1.Image;
 
         }
@@ -356,10 +410,139 @@ namespace Task
             }
 
 
-            pol = new Models.Plot3D(f, x1, x2, splits, pictureBox1.Height / 2);
+            Models.Polyhedron pol = new Models.Plot3D(f, x1, x2, splits, pictureBox1.Height / 2);
+
+            pols.Add(pol);
+
             ClearWithout();
-            draw_model();
+            draw_models();
             pictureBox1.Image = pictureBox1.Image;
+        }
+
+        //удалить нелицевые грани
+        private void button8_Click(object sender, EventArgs e)
+        {
+            Models.PointPol review_vector;
+
+            if (comboBox4.SelectedItem.ToString() != "По проекции")
+            {
+                review_vector = new Models.PointPol(0, 0, 0);
+                review_vector.X = Convert.ToDouble(textBox1.Text);
+                review_vector.Y = Convert.ToDouble(textBox2.Text);
+                review_vector.Z = Convert.ToDouble(textBox3.Text);
+
+            }
+            else
+            {
+                switch (comboBox3.SelectedItem.ToString())
+                {
+                    case "Изометрическая":
+                        review_vector = new Models.PointPol(-1, 1, -1);
+                        break;
+                    case "Ортогональная на YoZ":
+                        review_vector = new Models.PointPol(-1, 0, 0);
+                        break;
+                    case "Ортогональная на XoZ":
+                        review_vector = new Models.PointPol(0, 1, 0);
+                        break;
+                    case "Ортогональная на XoY":
+                        review_vector = new Models.PointPol(0, 0, -1);
+                        break;
+                    case "Перспективная":
+                        return;
+                        break;
+                    default:
+                        return;
+                }
+            }
+
+            if (Convert.ToInt32(textBox4.Text) < 0 || Convert.ToInt32(textBox4.Text) >= pols.Count)
+                return;
+
+            Models.Polyhedron pol = pols[Convert.ToInt32(textBox4.Text)];
+
+            List<bool> visible_polyg = pol.non_face_removal(review_vector);//проверяем, какие грани лицевые
+            List<bool> visible_edges = new List<bool>();
+
+            //ребро видимо только тогда, когда есть хотя бы одна лицевая грань, которая ограничена этим ребром
+            for (int i = 0; i < pol.edges.Count; i++)
+                visible_edges.Add(false);
+
+            for (int i = 0; i < pol.polygons.Count; i++)
+                if (visible_polyg[i])
+                    foreach (int j in pol.polygons[i].edges)
+                        visible_edges[j] = true;
+
+            ClearWithout();
+
+            axis.shift(100, 100, 100);
+            pol.shift(100, 100, 100);
+
+            g.SmoothingMode = SmoothingMode.AntiAlias; // сглаживание
+            for (int i = 0; i < pol.edges.Count; i++)
+            {
+                if (visible_edges[i])
+                    g.DrawLine(col, pol.edges[i].Item1, pol.edges[i].Item2);
+            }
+
+            foreach (var i in axis.edges)
+                g.DrawLine(col, i.Item1, i.Item2);
+
+            axis.shift(-100, -100, -100);
+            pol.shift(-100, -100, -100);
+
+            pictureBox1.Image = pictureBox1.Image;
+        }
+
+        //Z-буфер
+        private void button9_Click(object sender, EventArgs e)
+        {
+            
         }
     }
 }
+
+//попытка в Z-буфер
+/*          comboBox3.SelectedIndex = 3; //Ортогональная на OXY
+
+            Models.PointPol review_vector = new Models.PointPol(0, 0, 1);
+
+            List<List<double>> Z_buf = new List<List<double>>();
+
+            for (int i = 0; i < pictureBox1.Image.Height; i++)
+            {
+                Z_buf.Add(new List<double>());
+                for (int j = 0; j < pictureBox1.Image.Width; j++)
+                    Z_buf[i].Add(double.MinValue);
+            }
+
+            ClearWithout();
+
+            foreach (var pol in pols)
+            {
+                List<bool> visible_polyg = pol.non_face_removal(review_vector);
+
+                for (int i = 0; i < pol.polygons.Count; i++)
+                    if (visible_polyg[i])
+                    {
+
+                        Bitmap for_one_polyg = new Bitmap(pictureBox1.Image.Width, pictureBox1.Image.Height);
+
+                        Graphics g1 = Graphics.FromImage(for_one_polyg);
+                        g1.Clear(Color.White);
+
+                        foreach (int ed in pol.polygons[i].edges)
+                            g1.DrawLine(col, pol.edges[ed].Item1, pol.edges[ed].Item2);
+
+                        Point center_polyg = new Point(0,0);
+                        foreach(int ed in pol.polygons[i].edges)
+                        {
+                            center_polyg.X += Convert.ToInt32(pol.edges[ed].Item1.X) + Convert.ToInt32(pol.edges[ed].Item2.X);
+                            center_polyg.Y += Convert.ToInt32(pol.edges[ed].Item1.Y) + Convert.ToInt32(pol.edges[ed].Item2.Y);
+                        }
+                        center_polyg.X = center_polyg.X / (pol.polygons[i].edges.Count * 2);
+                        center_polyg.Y = center_polyg.Y / (pol.polygons[i].edges.Count * 2);
+                    }
+            }
+
+           */

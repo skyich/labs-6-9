@@ -53,6 +53,28 @@ namespace Task
                                                                  { 0, 0, -1, 0 },
                                                                  { 0, 0, 0, 1 } };
 
+        //скалярное произведение двух векторов
+        static public PointPol normal_vector(PointPol a, PointPol b)
+        {
+            /*double x = a.Y * b.Z - a.Z * b.Y;
+            double y = a.Z * b.X - a.X * b.Z;
+            double z = a.X * b.Y - a.Y * b.X;*/ //правый ортонормированный базис
+
+            double x = a.Z * b.Y - a.Y * b.Z;
+            double y = a.X * b.Z - a.Z * b.X;
+            double z = a.Y * b.X - a.X * b.Y; //левый ортонормированный базис
+
+            PointPol result = new PointPol(x, y, z);
+            return result;
+        }
+
+        //угол между векторами в радианах
+        static public double angle_betw_vectors(PointPol a, PointPol b)
+        {
+            return Math.Acos((a.X * b.X + a.Y * b.Y + a.Z * b.Z) / (Math.Sqrt(a.X * a.X + a.Y * a.Y + a.Z * a.Z) * Math.Sqrt(b.X * b.X + b.Y * b.Y + b.Z * b.Z)));
+        }
+
+
         [Serializable]
         public class PointPol
         {
@@ -201,16 +223,18 @@ namespace Task
         {
 
             public List<int> points = new List<int>();
-            public List<Edge> edges = new List<Edge>();
-            public Polygon(List<Edge> edg)
+            public List<int> edges = new List<int>();
+            public PointPol normal;
+            public Polygon(List<int> edg, PointPol norm)
             {
+                normal = norm;
                 foreach (var el in edg)
                 {
                     edges.Add(el);
-                    if (!points.Contains(el.P1))
-                        points.Add(el.P1);
-                    if (!points.Contains(el.P2))
-                        points.Add(el.P2);
+                   // if (!points.Contains(el.P1))
+                   //     points.Add(el.P1);
+                   // if (!points.Contains(el.P2))
+                   //     points.Add(el.P2);
                 }
             }
             //грани
@@ -348,6 +372,10 @@ namespace Task
                     PointPol pp = vertices[i].roration(axis, cos, sin);
                     vertices[i] = pp;
                 }
+                for(int i = 0; i < polygons.Count; i++)
+                {
+                    polygons[i].normal = polygons[i].normal.roration(axis, cos, sin);
+                }
             }
 
             //поворот
@@ -452,6 +480,39 @@ namespace Task
                 }
             }
 
+            //true на i-ой позиции означает, что i-ый полигон является лицевым
+            public List<bool> non_face_removal(PointPol review_vetor)
+            {
+                List<bool> result = new List<bool>();
+
+                for (int i = 0; i < polygons.Count; i++)
+                    result.Add(false);
+
+                for (int i = 0; i < polygons.Count; i++)
+                {
+                    double x1, y1, z1, x2, y2, z2;
+                    x1 = vertices[edges3D[polygons[i].edges[0]].P1].X - vertices[edges3D[polygons[i].edges[0]].P2].X;
+                    y1 = vertices[edges3D[polygons[i].edges[0]].P1].Y - vertices[edges3D[polygons[i].edges[0]].P2].Y;
+                    z1 = vertices[edges3D[polygons[i].edges[0]].P1].Z - vertices[edges3D[polygons[i].edges[0]].P2].Z;
+
+                    x2 = vertices[edges3D[polygons[i].edges[1]].P1].X - vertices[edges3D[polygons[i].edges[1]].P2].X;
+                    y2 = vertices[edges3D[polygons[i].edges[1]].P1].Y - vertices[edges3D[polygons[i].edges[1]].P2].Y;
+                    z2 = vertices[edges3D[polygons[i].edges[1]].P1].Z - vertices[edges3D[polygons[i].edges[1]].P2].Z;
+
+                    PointPol a = new PointPol(x1, y1, z1);
+                    PointPol b = new PointPol(x2, y2, z2);
+
+                    PointPol normal = normal_vector(a, b); //нормаль грани
+                    //от начала функции и до сюда почти все фикция, потому что нормали граней заполняются при инициализации и не нужно ничего искать
+                    if (angle_betw_vectors(polygons[i].normal, review_vetor) > Math.PI/2)
+                    {
+                        result[i] = true;
+                    }
+                }
+                
+                return result;
+            }
+
         }
 
         public class Axis:Polyhedron
@@ -519,18 +580,18 @@ namespace Task
 
                 //добавляем ребра
                 {
-                    edges3D.Add(new Edge(a.index, a1.index));
-                    edges3D.Add(new Edge(a.index, b.index));
-                    edges3D.Add(new Edge(a.index, d.index));
-                    edges3D.Add(new Edge(c.index, c1.index));
-                    edges3D.Add(new Edge(c.index, b.index));
-                    edges3D.Add(new Edge(c.index, d.index));
-                    edges3D.Add(new Edge(b1.index, b.index));
-                    edges3D.Add(new Edge(b1.index, c1.index));
-                    edges3D.Add(new Edge(b1.index, a1.index));
-                    edges3D.Add(new Edge(d1.index, d.index));
-                    edges3D.Add(new Edge(d1.index, c1.index));
-                    edges3D.Add(new Edge(d1.index, a1.index));
+                    edges3D.Add(new Edge(a.index, a1.index));//0
+                    edges3D.Add(new Edge(a.index, b.index));//1
+                    edges3D.Add(new Edge(a.index, d.index));//2
+                    edges3D.Add(new Edge(c.index, c1.index));//3
+                    edges3D.Add(new Edge(c.index, b.index));//4
+                    edges3D.Add(new Edge(c.index, d.index));//5
+                    edges3D.Add(new Edge(b1.index, b.index));//6
+                    edges3D.Add(new Edge(b1.index, c1.index));//7
+                    edges3D.Add(new Edge(b1.index, a1.index));//8
+                    edges3D.Add(new Edge(d1.index, d.index));//9
+                    edges3D.Add(new Edge(d1.index, c1.index));//10
+                    edges3D.Add(new Edge(d1.index, a1.index));//11
                 }
 
                 //заполняем списки смежности
@@ -578,58 +639,65 @@ namespace Task
 
                 //заполняем полигоны
                 {
-                    List<Edge> e1 = new List<Edge>();
-                    e1.Add(new Edge(a.index, b.index));
-                    e1.Add(new Edge(a.index, d.index));
-                    e1.Add(new Edge(c.index, b.index));
-                    e1.Add(new Edge(c.index, d.index));
+                    PointPol normal;
+                    List<int> e1 = new List<int>();
+                    e1.Add(1);
+                    e1.Add(2);
+                    e1.Add(4);
+                    e1.Add(5);
+                    normal = new PointPol(0, 0, -1);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1 = new List<Edge>();
-                    e1.Add(new Edge(a.index, b.index));
-                    e1.Add(new Edge(a.index, a1.index));
-                    e1.Add(new Edge(a1.index, b1.index));
-                    e1.Add(new Edge(b.index, b1.index));
+                    e1 = new List<int>();
+                    e1.Add(1);
+                    e1.Add(0);
+                    e1.Add(8);
+                    e1.Add(6);
+                    normal = new PointPol(0, 1, 0);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1 = new List<Edge>();
-                    e1.Add(new Edge(a.index, d.index));
-                    e1.Add(new Edge(a.index, a1.index));
-                    e1.Add(new Edge(a1.index, d1.index));
-                    e1.Add(new Edge(d.index, d1.index));
+                    e1 = new List<int>();
+                    e1.Add(2);
+                    e1.Add(0);
+                    e1.Add(11);
+                    e1.Add(9);
+                    normal = new PointPol(1, 0, 0);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1 = new List<Edge>();
-                    e1.Add(new Edge(c.index, d.index));
-                    e1.Add(new Edge(c.index, c1.index));
-                    e1.Add(new Edge(c1.index, d1.index));
-                    e1.Add(new Edge(d.index, d1.index));
+                    e1 = new List<int>();
+                    e1.Add(5);
+                    e1.Add(3);
+                    e1.Add(10);
+                    e1.Add(9);
+                    normal = new PointPol(0, -1, 0);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1 = new List<Edge>();
-                    e1.Add(new Edge(c.index, b.index));
-                    e1.Add(new Edge(c.index, c1.index));
-                    e1.Add(new Edge(c1.index, b1.index));
-                    e1.Add(new Edge(b.index, b1.index));
+                    e1 = new List<int>();
+                    e1.Add(4);
+                    e1.Add(3);
+                    e1.Add(7);
+                    e1.Add(6);
+                    normal = new PointPol(-1, 0, 0);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1 = new List<Edge>();
-                    e1.Add(new Edge(a1.index, d1.index));
-                    e1.Add(new Edge(c1.index, d1.index));
-                    e1.Add(new Edge(b1.index, c1.index));
-                    e1.Add(new Edge(a1.index, b1.index));
+                    e1 = new List<int>();
+                    e1.Add(11);
+                    e1.Add(10);
+                    e1.Add(7);
+                    e1.Add(8);
+                    normal = new PointPol(0, 0, 1);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
                 }
             }
@@ -672,43 +740,48 @@ namespace Task
 
                 //заполняем ребра
                 {
-                    edges3D.Add(new Edge(a.index, b.index));
-                    edges3D.Add(new Edge(a.index, c.index));
-                    edges3D.Add(new Edge(a.index, d.index));
-                    edges3D.Add(new Edge(b.index, c.index));
-                    edges3D.Add(new Edge(b.index, d.index));
-                    edges3D.Add(new Edge(d.index, c.index));
+                    edges3D.Add(new Edge(a.index, b.index));//0
+                    edges3D.Add(new Edge(a.index, c.index));//1
+                    edges3D.Add(new Edge(a.index, d.index));//2
+                    edges3D.Add(new Edge(b.index, c.index));//3
+                    edges3D.Add(new Edge(b.index, d.index));//4
+                    edges3D.Add(new Edge(d.index, c.index));//5
                 }
 
                 //заполняем полигоны
                 {
-                    List<Edge> e1 = new List<Edge>();
-                    e1.Add(new Edge(a.index, b.index));
-                    e1.Add(new Edge(a.index, c.index));
-                    e1.Add(new Edge(b.index, c.index));
+                    PointPol normal;
+                    List<int> e1 = new List<int>();
+                    e1.Add(0);
+                    e1.Add(1);
+                    e1.Add(3);
+                    normal = new PointPol(-1, 1, 1);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1.Add(new Edge(a.index, c.index));
-                    e1.Add(new Edge(a.index, d.index));
-                    e1.Add(new Edge(c.index, d.index));
+                    e1.Add(1);
+                    e1.Add(2);
+                    e1.Add(5);
+                    normal = new PointPol(1, 1, -1);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1.Add(new Edge(a.index, b.index));
-                    e1.Add(new Edge(a.index, d.index));
-                    e1.Add(new Edge(b.index, d.index));
+                    e1.Add(0);
+                    e1.Add(2);
+                    e1.Add(4);
+                    normal = new PointPol(1, -1, 1);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1.Add(new Edge(b.index, c.index));
-                    e1.Add(new Edge(b.index, d.index));
-                    e1.Add(new Edge(c.index, d.index));
+                    e1.Add(3);
+                    e1.Add(4);
+                    e1.Add(5);
+                    normal = new PointPol(-1, -1, -1);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
                 }
 
@@ -743,18 +816,18 @@ namespace Task
 
                 //заполняем ребра
                 {
-                    edges3D.Add(new Edge(a.index, b.index));
-                    edges3D.Add(new Edge(a.index, c.index));
-                    edges3D.Add(new Edge(a.index, d.index));
-                    edges3D.Add(new Edge(a.index, e.index));
-                    edges3D.Add(new Edge(f.index, b.index));
-                    edges3D.Add(new Edge(f.index, c.index));
-                    edges3D.Add(new Edge(f.index, d.index));
-                    edges3D.Add(new Edge(f.index, e.index));
-                    edges3D.Add(new Edge(b.index, c.index));
-                    edges3D.Add(new Edge(b.index, e.index));
-                    edges3D.Add(new Edge(d.index, c.index));
-                    edges3D.Add(new Edge(d.index, e.index));
+                    edges3D.Add(new Edge(a.index, b.index));//0
+                    edges3D.Add(new Edge(a.index, c.index));//1
+                    edges3D.Add(new Edge(a.index, d.index));//2
+                    edges3D.Add(new Edge(a.index, e.index));//3
+                    edges3D.Add(new Edge(f.index, b.index));//4
+                    edges3D.Add(new Edge(f.index, c.index));//5
+                    edges3D.Add(new Edge(f.index, d.index));//6
+                    edges3D.Add(new Edge(f.index, e.index));//7
+                    edges3D.Add(new Edge(b.index, c.index));//8
+                    edges3D.Add(new Edge(b.index, e.index));//9
+                    edges3D.Add(new Edge(d.index, c.index));//10
+                    edges3D.Add(new Edge(d.index, e.index));//11
                 }
 
                 for (int i = 0; i < 6; i++)
@@ -794,39 +867,78 @@ namespace Task
                     neighbors[f.index].Add(d.index);
                     neighbors[f.index].Add(e.index);
                 }
-
+                
                 //заполняем полигоны
                 {
-                    List<Edge> e1 = new List<Edge>();
-                    e1.Add(new Edge(a.index, b.index));
-                    e1.Add(new Edge(a.index, c.index));
-                    e1.Add(new Edge(b.index, c.index));
+                    PointPol normal;
+                    List<int> e1 = new List<int>();
+                    e1.Add(0);
+                    e1.Add(1);
+                    e1.Add(8);
+                    normal = new PointPol(1, 1, 1);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1.Add(new Edge(a.index, c.index));
-                    e1.Add(new Edge(a.index, d.index));
-                    e1.Add(new Edge(c.index, d.index));
+                    e1.Add(1);
+                    e1.Add(2);
+                    e1.Add(10);
+                    normal = new PointPol(-1, 1, 1);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1.Add(new Edge(a.index, d.index));
-                    e1.Add(new Edge(a.index, e.index));
-                    e1.Add(new Edge(d.index, e.index));
+                    e1.Add(2);
+                    e1.Add(3);
+                    e1.Add(11);
+                    normal = new PointPol(-1, -1, 1);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
 
-                    e1.Add(new Edge(a.index, b.index));
-                    e1.Add(new Edge(a.index, e.index));
-                    e1.Add(new Edge(b.index, e.index));
+                    e1.Add(0);
+                    e1.Add(3);
+                    e1.Add(9);
+                    normal = new PointPol(1, -1, 1);
 
-                    polygons.Add(new Polygon(e1));
+                    polygons.Add(new Polygon(e1, normal));
+                    e1.Clear();
+
+                    //=================
+
+                    e1.Add(4);
+                    e1.Add(5);
+                    e1.Add(8);
+                    normal = new PointPol(1, 1, -1);
+
+                    polygons.Add(new Polygon(e1, normal));
+                    e1.Clear();
+
+                    e1.Add(5);
+                    e1.Add(6);
+                    e1.Add(10);
+                    normal = new PointPol(-1, 1, -1);
+
+                    polygons.Add(new Polygon(e1, normal));
+                    e1.Clear();
+
+                    e1.Add(6);
+                    e1.Add(7);
+                    e1.Add(11);
+                    normal = new PointPol(-1, -1, -1);
+
+                    polygons.Add(new Polygon(e1, normal));
+                    e1.Clear();
+
+                    e1.Add(4);
+                    e1.Add(7);
+                    e1.Add(9);
+                    normal = new PointPol(1, -1, -1);
+
+                    polygons.Add(new Polygon(e1, normal));
                     e1.Clear();
                 }
-
+                
             }
 
         }
