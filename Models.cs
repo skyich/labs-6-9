@@ -248,7 +248,6 @@ namespace Task
         [Serializable]
         public class Polyhedron
         {
-            [NonSerialized]
             public PointPol center;
             //Список вершин многогранника
             public Dictionary<int, PointPol> vertices; //в классе координаты хранятся относительно центра, как векторы
@@ -515,6 +514,7 @@ namespace Task
 
         }
 
+       
         public class Axis:Polyhedron
         {
             public Axis()

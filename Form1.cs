@@ -103,6 +103,15 @@ namespace Task
             pictureBox1.Image = pictureBox1.Image;
         }
 
+        // добавляет новую модель на picturebox
+        private void draw_new_model(Models.Polyhedron p)
+        {
+            ClearWithout();
+            pols.Add(p);
+            draw_models();
+            pictureBox1.Image = pictureBox1.Image;
+        }
+
         //добавить новый объект
         private void button2_Click(object sender, EventArgs e)
         {
@@ -111,12 +120,15 @@ namespace Task
             {
                 case "Гексаэдр":
                     pol = new Models.cube(pictureBox1.Height / 2);
+                    draw_new_model(pol);
                     break;
                 case "Тетраэдр":
                     pol = new Models.Tetrahedron(pictureBox1.Height / 2);
+                    draw_new_model(pol);
                     break;
                 case "Октаэдр":
                     pol = new Models.Octahedron(pictureBox1.Height / 2);
+                    draw_new_model(pol);
                     break;
                 case "Загрузить из файла":
                     LoadFromFile();
@@ -141,15 +153,6 @@ namespace Task
                 default:
                     return;
             }
-
-
-            pols.Add(pol);
-
-            ClearWithout();
-
-            draw_models();
-
-            pictureBox1.Image = pictureBox1.Image;
         }
 
         //очистить
@@ -318,10 +321,11 @@ namespace Task
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     pol = Models.Polyhedron.ReadFromFile(openFileDialog.FileName);
+                    
                 }
             }
 
-            pols.Add(pol);
+            draw_new_model(pol);
         }
 
         // Загрузить файл с координатами образующей для фигуры вращения
@@ -372,11 +376,7 @@ namespace Task
             var splits = Int32.Parse(counterSplits.Text);
             pol = new Models.SolidOfRevolution(forming, splits, selectorAxis.SelectedIndex, pictureBox1.Height / 2);
 
-            pols.Add(pol);
-
-            ClearWithout();
-            draw_models();
-            pictureBox1.Image = pictureBox1.Image;
+            draw_new_model(pol);
 
         }
 
@@ -412,11 +412,7 @@ namespace Task
 
             Models.Polyhedron pol = new Models.Plot3D(f, x1, x2, splits, pictureBox1.Height / 2);
 
-            pols.Add(pol);
-
-            ClearWithout();
-            draw_models();
-            pictureBox1.Image = pictureBox1.Image;
+            draw_new_model(pol);
         }
 
         //удалить нелицевые грани
