@@ -259,6 +259,8 @@ namespace Task
             draw_models();
 
             pictureBox1.Image = pictureBox1.Image;
+
+            //textBox9.Text = pols[0].center.X + " " + pols[0].center.Y + " " + pols[0].center.Z;
         }
 
         //поворот вокруг прямой, проходящей через начало координат и центр объекта
@@ -493,52 +495,174 @@ namespace Task
         //Z-буфер
         private void button9_Click(object sender, EventArgs e)
         {
-            
-        }
-    }
-}
+            ClearWithout();
 
-//попытка в Z-буфер
-/*          comboBox3.SelectedIndex = 3; //Ортогональная на OXY
-
-            Models.PointPol review_vector = new Models.PointPol(0, 0, 1);
+            comboBox3.SelectedIndex = 0;
+            comboBox3.SelectedIndex = 3;
+            Models.PointPol review_vector = new Models.PointPol(0,0,-1);
 
             List<List<double>> Z_buf = new List<List<double>>();
 
-            for (int i = 0; i < pictureBox1.Image.Height; i++)
+            for (int i = 0; i < pictureBox1.Image.Width; i++)
             {
                 Z_buf.Add(new List<double>());
-                for (int j = 0; j < pictureBox1.Image.Width; j++)
+                for (int j = 0; j < pictureBox1.Image.Height; j++)
                     Z_buf[i].Add(double.MinValue);
             }
 
-            ClearWithout();
-
-            foreach (var pol in pols)
+            for (int i = 0; i < pols.Count; i++)
             {
+                //обработка одного объекта
+                Models.Polyhedron pol = pols[i];
+
                 List<bool> visible_polyg = pol.non_face_removal(review_vector);
 
-                for (int i = 0; i < pol.polygons.Count; i++)
-                    if (visible_polyg[i])
+
+                for (int j = 0; j < pol.polygons.Count; j++)
+                {
+                    //обработка одного видимого полигона
+                    if (visible_polyg[j] == false)
+                        continue;
+
+                    int left_up_point, right_up_point;
+
+                    left_up_point = right_up_point = pol.find_top_point(j);
+
+                    Dictionary<int, Models.Point_with_neighbors> view = pol.new_view(j);
+
+                    int left_down_point = view[left_up_point].left, right_down_point = view[right_up_point].right;
+
+                    if (pol.vertices[left_down_point].X > pol.vertices[right_down_point].X)
                     {
-
-                        Bitmap for_one_polyg = new Bitmap(pictureBox1.Image.Width, pictureBox1.Image.Height);
-
-                        Graphics g1 = Graphics.FromImage(for_one_polyg);
-                        g1.Clear(Color.White);
-
-                        foreach (int ed in pol.polygons[i].edges)
-                            g1.DrawLine(col, pol.edges[ed].Item1, pol.edges[ed].Item2);
-
-                        Point center_polyg = new Point(0,0);
-                        foreach(int ed in pol.polygons[i].edges)
-                        {
-                            center_polyg.X += Convert.ToInt32(pol.edges[ed].Item1.X) + Convert.ToInt32(pol.edges[ed].Item2.X);
-                            center_polyg.Y += Convert.ToInt32(pol.edges[ed].Item1.Y) + Convert.ToInt32(pol.edges[ed].Item2.Y);
-                        }
-                        center_polyg.X = center_polyg.X / (pol.polygons[i].edges.Count * 2);
-                        center_polyg.Y = center_polyg.Y / (pol.polygons[i].edges.Count * 2);
+                        int x = left_down_point;
+                        left_down_point = right_down_point;
+                        right_down_point = x;
                     }
-            }
 
-           */
+                    double current_y = pol.vertices[left_up_point].Y;
+                    double step = 0.3;
+
+                    while (true)
+                    {
+                        //обработка одной строки
+
+                        if (current_y <= pol.vertices[left_down_point].Y)
+                        {
+                            int old_left = left_down_point;
+
+                            if (view[left_down_point].right == left_up_point)
+                                left_down_point = view[left_down_point].left;
+                            else
+                                left_down_point = view[left_down_point].right;
+
+                            left_up_point = old_left;
+                        }
+
+                        if (current_y <= pol.vertices[right_down_point].Y)
+                        {
+                            int old_right = right_down_point;
+
+                            if (view[right_down_point].right == right_up_point)
+                                right_down_point = view[right_down_point].left;
+                            else
+                                right_down_point = view[right_down_point].right;
+
+                            right_up_point = old_right;
+                        }
+
+                        if (current_y <= pol.vertices[right_down_point].Y || current_y <= pol.vertices[left_down_point].Y)
+                            break;
+
+                        double x1, x2, x3, x4, y1, y2, y3, y4, z1, z2, z3, z4;
+                        x1 = pol.vertices[left_up_point].X;
+                        y1 = pol.vertices[left_up_point].Y;
+                        z1 = pol.vertices[left_up_point].Z;
+
+                        x2 = pol.vertices[left_down_point].X;
+                        y2 = pol.vertices[left_down_point].Y;
+                        z2 = pol.vertices[left_down_point].Z;
+
+                        x3 = pol.vertices[right_up_point].X;
+                        y3 = pol.vertices[right_up_point].Y;
+                        z3 = pol.vertices[right_up_point].Z;
+
+                        x4 = pol.vertices[right_down_point].X;
+                        y4 = pol.vertices[right_down_point].Y;
+                        z4 = pol.vertices[right_down_point].Z;
+
+                        double xa, za, xb, zb;
+
+                        xa = x1 + (x2 - x1) * ((current_y - y1) / (y2 - y1));
+                        xb = x3 + (x4 - x3) * ((current_y - y3) / (y4 - y3));
+                        za = z1 + (z2 - z1) * ((current_y - y1) / (y2 - y1));
+                        zb = z3 + (z4 - z3) * ((current_y - y3) / (y4 - y3));
+
+                        if (xa > xb)
+                        {
+                            double old_xa = xa, old_za = za;
+                            xa = xb;
+                            za = zb;
+                            xb = old_xa;
+                            zb = old_za;
+
+                        }
+
+                        for (double current_x = xa; current_x <= xb; current_x += step)
+                        {
+                            double current_z = za + (zb - za) * ((current_x - xa) / (xb - xa)) + pol.center.Z;
+
+                            int x, y;
+
+                            x = Convert.ToInt32(current_x + pol.center.X) + 100;
+
+                            y = Convert.ToInt32(current_y + pol.center.Y) + 100;
+
+                            if (x < 0 ||
+                                x >= pictureBox1.Image.Width ||
+                                y < 0 ||
+                                y >= pictureBox1.Image.Height)
+                                continue;
+
+                            if (current_z > Z_buf[x][y])
+                            { //этот участок можно менять
+                                Z_buf[x][y] = current_z;
+
+                                Color col;
+
+                                //в частности настройки цвета
+                                switch (i)
+                                {
+                                    case 0:
+                                        col = Color.Red;
+                                        break;
+                                    case 1:
+                                        col = Color.Blue;
+                                        break;
+                                    case 2:
+                                        col = Color.Green;
+                                        break;
+                                    case 3:
+                                        col = Color.Yellow;
+                                        break;
+                                    default:
+                                        col = Color.Pink;
+                                        break;
+                                }
+
+                                ((Bitmap)pictureBox1.Image).SetPixel(x, y, col);
+
+                                //и вот тут возникают проблемы из-за ширины границ
+                                if (Math.Abs(current_x - xa) < 1.2 || Math.Abs(xb - current_x) < 1.2)
+                                  ((Bitmap)pictureBox1.Image).SetPixel(x, y, Color.Black);
+
+                            }
+                                    
+                        }
+                        current_y -= step;
+                    }
+                }
+            }
+            pictureBox1.Image = pictureBox1.Image;
+        }
+    }
+}

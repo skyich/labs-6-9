@@ -74,6 +74,20 @@ namespace Task
             return Math.Acos((a.X * b.X + a.Y * b.Y + a.Z * b.Z) / (Math.Sqrt(a.X * a.X + a.Y * a.Y + a.Z * a.Z) * Math.Sqrt(b.X * b.X + b.Y * b.Y + b.Z * b.Z)));
         }
 
+        //класс для z-буфера. Для точки с указанным индексом можно узнать индексы соседних с ним точек
+        public class Point_with_neighbors
+        {
+            public int index;
+            public int left;
+            public int right;
+            
+            public Point_with_neighbors(int ind, int l, int r)
+            {
+                index = ind;
+                right = r;
+                left = l;
+            }
+        }
 
         [Serializable]
         public class PointPol
@@ -259,6 +273,45 @@ namespace Task
             public List<Polygon> polygons = new List<Polygon>();
 
 
+            //ищет индекс точки с наибольшим значением игрик в полигоне с указанным индексом
+            public int find_top_point(int polyg_ind)
+            {
+                int result = edges3D[polygons[polyg_ind].edges[0]].P1;
+
+                foreach (var edge in polygons[polyg_ind].edges)
+                {
+                    if (vertices[edges3D[edge].P1].Y > vertices[result].Y)
+                        result = edges3D[edge].P1;
+
+                    if (vertices[edges3D[edge].P2].Y > vertices[result].Y)
+                        result = edges3D[edge].P2;
+                }
+
+
+                return result;
+            }
+
+
+            public Dictionary<int, Point_with_neighbors> new_view(int index_polyg)
+            {
+                Dictionary<int, Point_with_neighbors> result = new Dictionary<int, Point_with_neighbors>();
+
+                foreach(int ed in polygons[index_polyg].edges)
+                {
+                    if (result.ContainsKey(edges3D[ed].P1))
+                        result[edges3D[ed].P1].right = edges3D[ed].P2;
+                    else
+                        result[edges3D[ed].P1] = new Point_with_neighbors(edges3D[ed].P1, edges3D[ed].P2, -1);
+
+                    if (result.ContainsKey(edges3D[ed].P2))
+                        result[edges3D[ed].P2].right = edges3D[ed].P1;
+                    else
+                        result[edges3D[ed].P2] = new Point_with_neighbors(edges3D[ed].P2, edges3D[ed].P1, -1);
+                }
+
+                return result;
+            }
+
             //по трем координатам точки и способу отображения возвращает точку с двумя координатами
             public PointF GetPointIn2d(int proc, double[,] temp)
             {
@@ -395,8 +448,16 @@ namespace Task
 
                 double cos, sin;
 
-                cos = line[0, 2] / d;
-                sin = -line[0, 1] / d;
+                if (d == 0)
+                {
+                    cos = 1;
+                    sin = 0;
+                }
+                else
+                {
+                    cos = line[0, 2] / d;
+                    sin = -line[0, 1] / d;
+                }
 
                 double[,] R_x = { { 1, 0 , 0, 0} ,
                               {0, cos, -sin, 0 },
