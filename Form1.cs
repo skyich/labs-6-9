@@ -20,6 +20,7 @@ namespace Task
 
         public List<Point3D> forming; // образующая для фигру вращения
         public int lastModel = -1; // форма последней нарисованной фигуры
+        private Camera camera;
 
         public Form1()
         {
@@ -33,6 +34,7 @@ namespace Task
             selectorAxis.SelectedIndex = 0;
             comboBox1.SelectedIndex = 0;
             comboBox4.SelectedIndex = 0;
+            camera = Camera.getInstance();
         }
 
         public void Clear()
@@ -56,21 +58,34 @@ namespace Task
             foreach (var pol in pols)
                 pol.shift(100, 100, 100);
 
-            foreach (var pol in pols)
-                pol.Display(projection);
+            if (projection == 5)
+            {
+                foreach (var pol in pols)
+                    pol.Display(camera.perspective);
+                axis.Display(camera.perspective);
+            }
+            else
+            {
+                foreach (var pol in pols)
+                    pol.Display(projection);
+                axis.Display(projection);
+            }
 
-            axis.Display(projection);
             g.SmoothingMode = SmoothingMode.AntiAlias; // сглаживание
             foreach(var pol in pols)
                 foreach (var i in pol.edges)
                     g.DrawLine(col, i.Item1, i.Item2);
 
-            foreach (var i in axis.edges)
-                g.DrawLine(col, i.Item1, i.Item2);
+            //foreach (var i in axis.edges)
+               // g.DrawLine(col, i.Item1, i.Item2);
+
+            g.DrawLine(new Pen(Color.Blue), axis.edges[0].Item1, axis.edges[0].Item2); // OX
+            g.DrawLine(new Pen(Color.Red), axis.edges[1].Item1, axis.edges[1].Item2); // OY
+            g.DrawLine(new Pen(Color.Green), axis.edges[2].Item1, axis.edges[2].Item2); // OZ
 
             axis.shift(-100, -100, -100);
             foreach(var pol in pols)
-                pol.shift(-100, -100, -100);
+               pol.shift(-100, -100, -100);
         }
 
         private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
@@ -483,8 +498,12 @@ namespace Task
                     g.DrawLine(col, pol.edges[i].Item1, pol.edges[i].Item2);
             }
 
-            foreach (var i in axis.edges)
-                g.DrawLine(col, i.Item1, i.Item2);
+            //foreach (var i in axis.edges)
+            //g.DrawLine(col, i.Item1, i.Item2);
+
+            g.DrawLine(new Pen(Color.Blue), axis.edges[0].Item1, axis.edges[0].Item2); // OX
+            g.DrawLine(new Pen(Color.Red), axis.edges[1].Item1, axis.edges[1].Item2); // OY
+            g.DrawLine(new Pen(Color.Green), axis.edges[2].Item1, axis.edges[2].Item2); // OZ
 
             axis.shift(-100, -100, -100);
             pol.shift(-100, -100, -100);
@@ -663,6 +682,58 @@ namespace Task
                 }
             }
             pictureBox1.Image = pictureBox1.Image;
+        }
+
+        private void CameraButton_Click(object sender, EventArgs e)
+        {
+            camera.Refresh();
+            ClearWithout();
+            draw_models();
+        }
+
+        private void Form1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            switch (e.KeyChar)
+            {
+                case 'a':
+                    camera.Shift(0);
+                    break;
+                case 'd':
+                    camera.Shift(1);
+                    break;
+                case 'q':
+                    camera.Shift(2);
+                    break;
+                case 'e':
+                    camera.Shift(3);
+                    break;
+                case 's':
+                    camera.Shift(4);
+                    break;
+                case 'w':
+                    camera.Shift(5);
+                    break;
+                case 't':
+                    camera.Rotate(0);
+                    break;
+                case 'u':
+                    camera.Rotate(1);
+                    break;
+                case 'g':
+                    camera.Rotate(2);
+                    break;
+                case 'j':
+                    camera.Rotate(3);
+                    break;
+                case 'h':
+                    camera.Rotate(4);
+                    break;
+                case 'y':
+                    camera.Rotate(5);
+                    break;
+            }
+            ClearWithout();
+            draw_models();
         }
     }
 }

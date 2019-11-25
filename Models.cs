@@ -372,6 +372,7 @@ namespace Task
                     default:
                         break;
                 }
+
                 edges = new List<Tuple<PointF, PointF>>();
                 vertices2D = new List<PointF>();
 
@@ -384,6 +385,27 @@ namespace Task
 
                     temp = Utils.matrix_mult(dM, vertices[e.P2].getPol());
                     temp2d = GetPointIn2d(proc, temp);
+
+                    edges.Add(new Tuple<PointF, PointF>(temp2d, vertices2D.Last()));
+                    vertices2D.Add(temp2d);
+                }
+            }
+
+            // dM - матрица камеры
+            public void Display(double[,] dM)
+            {
+                edges = new List<Tuple<PointF, PointF>>();
+                vertices2D = new List<PointF>();
+
+                foreach (var e in edges3D)
+                {
+                    var temp = Utils.matrix_mult(dM, vertices[e.P1].getPol());
+                    PointF temp2d = GetPointIn2d(5, temp);
+
+                    vertices2D.Add(temp2d);
+
+                    temp = Utils.matrix_mult(dM, vertices[e.P2].getPol());
+                    temp2d = GetPointIn2d(5, temp);
 
                     edges.Add(new Tuple<PointF, PointF>(temp2d, vertices2D.Last()));
                     vertices2D.Add(temp2d);
