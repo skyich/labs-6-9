@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI.DataVisualization.Charting;
 
 namespace Task
 {
@@ -10,6 +11,7 @@ namespace Task
     {
         private static Camera instance;
         public double[,] perspective { get; set; }
+        public Point3D position;
 
         private Camera()
         {
@@ -22,6 +24,7 @@ namespace Task
                                                            { 0, 1, 0, 0 },
                                                            { 0, 0, 0, 0 },
                                                            { 0, 0, 100.003198/50000, 1 } };
+            position = new Point3D ( 0, 0, 0 );
         }
 
         // движение камеры по осям
@@ -39,36 +42,42 @@ namespace Task
                                                            { 0, 1, 0, 0 },
                                                            { 0, 0, 1, 0 },
                                                            { 0, 0, 0, 1 } };
+                    position.X -= step;
                     break;
                 case 1: // вправо по x
                     shiftMatrix = new double[4, 4] { { 1, 0, 0, step },
                                                            { 0, 1, 0, 0 },
                                                            { 0, 0, 1, 0 },
                                                            { 0, 0, 0, 1 } };
+                    position.X += step;
                     break;
                 case 2: // влево по y
                     shiftMatrix = new double[4, 4] { { 1, 0, 0, 0 },
                                                            { 0, 1, 0, -1 * step },
                                                            { 0, 0, 1, 0 },
                                                            { 0, 0, 0, 1 } };
+                    position.Y -= step;
                     break;
                 case 3: // вправо по y
                     shiftMatrix = new double[4, 4] { { 1, 0, 0, 0 },
                                                            { 0, 1, 0, step },
                                                            { 0, 0, 1, 0 },
                                                            { 0, 0, 0, 1 } };
+                    position.Y += step;
                     break;
                 case 4: // вниз по z
                     shiftMatrix = new double[4, 4] { { 1, 0, 0, 0 },
                                                            { 0, 1, 0, 0 },
                                                            { 0, 0, 1, -1 * step },
                                                            { 0, 0, 0, 1 } };
+                    position.Z -= step;
                     break;
                 case 5: // вверх по z
                     shiftMatrix = new double[4, 4] { { 1, 0, 0, 0 },
                                                            { 0, 1, 0, 0 },
                                                            { 0, 0, 1, step },
                                                            { 0, 0, 0, 1 } };
+                    position.Z += step;
                     break;
             }
 
@@ -86,10 +95,11 @@ namespace Task
             var sin = Math.Sin(angle);
             var cos_neg = Math.Cos(-1 * angle);
             var sin_neg = Math.Sin(-1 * angle);
+
             switch (direction)
             {
                 case 0: // влево по х
-                    rotationMatrix = new double[4, 4] { { 1, 0, 0, 0 },
+                    rotationMatrix = new double[4, 4] { { cos , 0, 0, 0 },
                                                            { 0, cos, -1*sin, 0 },
                                                            { 0, sin, cos, 0 },
                                                            { 0, 0, 0, 1 } };

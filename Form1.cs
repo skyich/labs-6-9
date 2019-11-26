@@ -21,9 +21,13 @@ namespace Task
         public List<Point3D> forming; // образующая для фигру вращения
         public int lastModel = -1; // форма последней нарисованной фигуры
         private Camera camera;
+        private List<Models.Polyhedron> pols_backup;
+        Models.Polyhedron axis_backup;
+        private bool PolsChanged = false; 
 
         public Form1()
         {
+            camera = Camera.getInstance();
             col = new Pen(Color.Black);
             InitializeComponent();
             pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
@@ -34,7 +38,6 @@ namespace Task
             selectorAxis.SelectedIndex = 0;
             comboBox1.SelectedIndex = 0;
             comboBox4.SelectedIndex = 0;
-            camera = Camera.getInstance();
         }
 
         public void Clear()
@@ -687,14 +690,21 @@ namespace Task
         private void CameraButton_Click(object sender, EventArgs e)
         {
             camera.Refresh();
+            pols = pols_backup;
+            axis = axis_backup as Models.Axis;
+            PolsChanged = false;
             ClearWithout();
             draw_models();
         }
 
         private void Form1_KeyPress(object sender, KeyPressEventArgs e)
         {
+            if (projection != 5)
+                return;
+
             switch (e.KeyChar)
             {
+                // смещения
                 case 'a':
                     camera.Shift(0);
                     break;
@@ -713,27 +723,84 @@ namespace Task
                 case 'w':
                     camera.Shift(5);
                     break;
+
+                // повороты
                 case 't':
-                    camera.Rotate(0);
+                    RotateAll(0);
                     break;
                 case 'u':
-                    camera.Rotate(1);
+                    RotateAll(1);
                     break;
                 case 'g':
-                    camera.Rotate(2);
+                    RotateAll(2);
                     break;
                 case 'j':
-                    camera.Rotate(3);
+                    RotateAll(3);
                     break;
                 case 'h':
-                    camera.Rotate(4);
+                    RotateAll(4);
                     break;
                 case 'y':
-                    camera.Rotate(5);
+                    RotateAll(5);
                     break;
             }
             ClearWithout();
             draw_models();
+        }
+
+        // повернуть все фигуры вокруг камеры
+        public void RotateAll(int direction)
+        {
+            if (PolsChanged == false)
+            {
+                pols_backup = new List<Models.Polyhedron>();
+                foreach (var x in pols) {
+                    pols_backup.Add(x.DeepCopy());
+                }
+                axis_backup = axis.DeepCopy();
+                PolsChanged = true;
+            }
+            double x1 = 0;
+            double y1 = 0;
+            double z1 = 0;
+
+            double x2 = 0;
+            double y2 = 0;
+            double z2 = 0;
+            double angle = 0.01;
+
+            switch (direction)
+            {
+                case 0: // влево по х
+                    x2 = camera.position.X + 1;
+                    angle *= -1;
+                    break;
+                case 1: // вправо по x
+                    x2 = camera.position.X + 1;
+                    break;
+                case 2: // влево по y
+                    y2 = camera.position.Y + 1;
+                    angle *= -1;
+                    break;
+                case 3: // вправо по y
+                    y2 = camera.position.Y + 1;
+                    break;
+                case 4: // вниз по z
+                    z2 = camera.position.Z + 1;
+                    angle *= -1;
+                    break;
+                case 5: // вверх по z
+                    z2 = camera.position.Z + 1;
+                    break;
+            }
+
+            double[,] start_point = { { x1, y1, z1 } };
+            double[,] line = { { x2 - x1, y2 - y1, z2 - z1, 1 } };
+
+            foreach (var x in pols)
+                x.rotation(start_point, line, angle);
+            axis.rotation(start_point, line, angle);
+
         }
     }
 }

@@ -272,6 +272,19 @@ namespace Task
             public List<Edge> edges3D = new List<Edge>();
             public List<Polygon> polygons = new List<Polygon>();
 
+            public Polyhedron DeepCopy()
+            {
+                Polyhedron other = (Polyhedron)this.MemberwiseClone();
+                other.vertices = new Dictionary<int, PointPol>(vertices);
+                other.vertices2D = new List<PointF>(vertices2D);
+                other.neighbors = new Dictionary<int, List<int>>(neighbors);
+                other.edges = new List<Tuple<PointF, PointF>>(edges);
+                other.edges3D = new List<Edge>(edges3D);
+                other.center = new PointPol(center.index, center.X, center.Y, center.Z, center.W);
+                other.polygons = new List<Polygon>(polygons);
+                return other;
+            }
+
 
             //ищет индекс точки с наибольшим значением игрик в полигоне с указанным индексом
             public int find_top_point(int polyg_ind)
