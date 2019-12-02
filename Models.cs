@@ -89,6 +89,16 @@ namespace Task
             }
         }
 
+        //расстояние между двумя точками в пространстве
+        static public double length_btw_points(PointPol p1, PointPol p2)
+        {
+            double result;
+
+            result = Math.Sqrt(Math.Pow(p2.X - p1.X, 2) + Math.Pow(p2.Y - p1.Y, 2) + Math.Pow(p2.Z - p1.Z, 2));
+
+            return result;
+        }
+
         [Serializable]
         public class PointPol
         {
@@ -285,6 +295,41 @@ namespace Task
                 return other;
             }
 
+            //если ключ i содержит true, то вершина с намером i освещена. Если false, то не освещена
+            public Dictionary<int, bool> lighted_vertices(double light_x, double light_y, double light_z)
+            {
+                Dictionary<int, bool> result = new Dictionary<int, bool>();
+
+                foreach (KeyValuePair<int, PointPol> p in vertices)
+                {
+                    PointPol vec1 = p.Value;
+                    double x2, y2, z2;
+                    x2 = center.X + p.Value.X - light_x;
+                    y2 = center.Y + p.Value.Y - light_y;
+                    z2 = center.Z + p.Value.Z - light_z;
+                    PointPol vec2 = new PointPol(x2, y2, z2);
+
+                    result[p.Key] = angle_betw_vectors(vec1, vec2) > Math.PI/4;
+                }
+
+                return result;
+            }
+
+            //возвращает список номеров вершин, которые содержит полигон с указанным номером
+            public List<int> including_vertices(int polyg_ind)
+            {
+                List<int> result = new List<int>();
+
+                foreach (int ed in polygons[polyg_ind].edges)
+                {
+                    if (!result.Contains(edges3D[ed].P1))
+                        result.Add(edges3D[ed].P1);
+                    if (!result.Contains(edges3D[ed].P2))
+                        result.Add(edges3D[ed].P2);
+                }
+
+                return result;
+            }
 
             //ищет индекс точки с наибольшим значением игрик в полигоне с указанным индексом
             public int find_top_point(int polyg_ind)
@@ -303,7 +348,6 @@ namespace Task
 
                 return result;
             }
-
 
             public Dictionary<int, Point_with_neighbors> new_view(int index_polyg)
             {
