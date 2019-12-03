@@ -26,6 +26,7 @@ namespace Task
         private bool PolsChanged = false;
 
         public List<Color> colors_of_pols = new List<Color>();
+        public Bitmap image;
 
         public Form1()
         {
@@ -69,6 +70,16 @@ namespace Task
 
         public void draw_models()
         {
+            if (radioButton5.Checked)
+            {
+                texture_overlay();
+                return;
+            }
+            if (radioButton3.Checked)
+            {
+                shading();
+                return;
+            }
             if (radioButton1.Checked)
             {
                 Z_buf();
@@ -835,7 +846,7 @@ namespace Task
         }
 
         //затенение
-        private void button9_Click(object sender, EventArgs e)
+        private void shading()
         {
             ClearWithout();
 
@@ -995,18 +1006,18 @@ namespace Task
                                     double length_to_vert = Models.length_btw_points(pol.vertices[vert], current_p);
                                     if (lighted_vertices[vert])
                                     {
-                                         A = A - (length_edg / length_to_vert)/5; 
+                                        A = A - (length_edg / length_to_vert) / 5;
                                     }
                                     else
                                     {
-                                        A =  A + (length_edg / length_to_vert)/5;
+                                        A = A + (length_edg / length_to_vert) / 5;
                                     }
                                 }
 
                                 A = Math.Min(1, A);
                                 A = Math.Max(0, A);
 
-                                col = Color.FromArgb(Convert.ToInt32(A*255), col);
+                                col = Color.FromArgb(Convert.ToInt32(A * 255), col);
 
                                 ((Bitmap)pictureBox1.Image).SetPixel(x, y, col);
 
@@ -1022,6 +1033,283 @@ namespace Task
                 }
             }
             pictureBox1.Image = pictureBox1.Image;
+        }
+
+        //затенение
+        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        {
+            draw_models();
+        }
+
+        //загрузка текстуры
+        private void button9_Click(object sender, EventArgs e)
+        {
+            // диалог для выбора файла
+            OpenFileDialog ofd = new OpenFileDialog();
+            // фильтр форматов файлов
+            ofd.Filter = "Image Files(*.BMP;*.JPG;*.GIF;*.PNG)|*.BMP;*.JPG;*.GIF;*.PNG|All files (*.*)|*.*";
+            // если в диалоге была нажата кнопка ОК
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    // загружаем изображение
+                    image = new Bitmap(ofd.FileName);
+                }
+                catch // в случае ошибки выводим MessageBox
+                {
+                    MessageBox.Show("Невозможно открыть выбранный файл", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        //наложение текстуры
+        private void texture_overlay()
+        {
+            ClearWithout();
+
+            axis.shift(100, 100, 100);
+            axis.Display(projection);
+
+            g.DrawLine(new Pen(Color.Blue), axis.edges[0].Item1, axis.edges[0].Item2); // OX
+            g.DrawLine(new Pen(Color.Red), axis.edges[1].Item1, axis.edges[1].Item2); // OY
+            g.DrawLine(new Pen(Color.Green), axis.edges[2].Item1, axis.edges[2].Item2); // OZ
+
+            axis.shift(-100, -100, -100);
+
+            //comboBox3.SelectedIndex = 0;
+            comboBox3.SelectedIndex = 3;
+            Models.PointPol review_vector = new Models.PointPol(0, 0, -1);
+
+            List<List<double>> Z_buf = new List<List<double>>();
+
+            for (int i = 0; i < pictureBox1.Image.Width; i++)
+            {
+                Z_buf.Add(new List<double>());
+                for (int j = 0; j < pictureBox1.Image.Height; j++)
+                    Z_buf[i].Add(double.MinValue);
+            }
+
+            for (int i = 0; i < pols.Count; i++)
+            {
+                //обработка одного объекта
+                Models.Polyhedron pol = pols[i];
+
+                List<bool> visible_polyg = pol.non_face_removal(review_vector);
+                Dictionary<int, bool> lighted_vertices = pol.lighted_vertices(Convert.ToDouble(textBox9.Text), Convert.ToDouble(textBox10.Text), Convert.ToDouble(textBox11.Text));
+
+
+                for (int j = 0; j < pol.polygons.Count; j++)
+                {
+                    //обработка одного видимого полигона
+                    if (visible_polyg[j] == false)
+                        continue;
+
+                    List<int> including_vertices = pol.including_vertices(j);
+
+                    int left_up_point, right_up_point;
+
+                    left_up_point = right_up_point = pol.find_top_point(j);
+
+                    Dictionary<int, Models.Point_with_neighbors> view = pol.new_view(j);
+
+                    int left_down_point = view[left_up_point].left, right_down_point = view[right_up_point].right;
+
+                    if (pol.vertices[left_down_point].X > pol.vertices[right_down_point].X)
+                    {
+                        int x = left_down_point;
+                        left_down_point = right_down_point;
+                        right_down_point = x;
+                    }
+
+                    double current_y = pol.vertices[left_up_point].Y;
+                    double step = 0.3;
+
+                    //==========================================================
+
+                    //точки для нахождения точки пересечения перпендикуляра с прямой, проходящей через две верхние точки полигона
+                    Point p1, p2, p3;
+                    p1 = new Point(0, int.MaxValue);
+                    p2 = new Point(0, int.MaxValue);
+
+                    int p1_ind = -1, p2_ind = -1;
+
+                    //ищем две верхние точки полигона на плоскости
+                    foreach (int k in including_vertices)
+                    {
+                        if (pol.vertices[k].Y < p1.Y)
+                        {
+                            p2 = p1;
+                            p1 = new Point(Convert.ToInt32(pol.vertices[k].X), Convert.ToInt32(pol.vertices[k].Y));
+                            p2_ind = p1_ind;
+                            p1_ind = k;
+                        }
+                        else if (pol.vertices[k].Y < p2.Y)
+                        {
+                            p2 = new Point(Convert.ToInt32(pol.vertices[k].X), Convert.ToInt32(pol.vertices[k].Y));
+                            p2_ind = k;
+                        }
+                    }
+
+                    double height_polyg = 1;
+
+                    //ищем расстояние от самой верхней точки до смежной с ней, которая не является второй верхней
+                    foreach (KeyValuePair<int, Models.Point_with_neighbors> q in view)
+                    {
+                        if (q.Key == p1_ind)
+                        {
+                            if (q.Value.left != p2_ind)
+                            {
+                                height_polyg = Math.Sqrt(
+                                                        Math.Pow(p1.X - pol.vertices[q.Value.left].X, 2) +
+                                                        Math.Pow(p1.Y - pol.vertices[q.Value.left].Y, 2));
+                            }
+                            else
+                            {
+                                height_polyg = Math.Sqrt(
+                                                        Math.Pow(p1.X - pol.vertices[q.Value.right].X, 2) +
+                                                        Math.Pow(p1.Y - pol.vertices[q.Value.right].Y, 2));
+                            }
+                        }
+                    }
+
+                    if (including_vertices.Count == 3)
+                    {
+                        p2 = new Point(int.MinValue, p1.Y);
+                    }
+
+                    while (true)
+                    {
+                        //обработка одной строки
+
+                        if (current_y <= pol.vertices[left_down_point].Y)
+                        {
+                            int old_left = left_down_point;
+
+                            if (view[left_down_point].right == left_up_point)
+                                left_down_point = view[left_down_point].left;
+                            else
+                                left_down_point = view[left_down_point].right;
+
+                            left_up_point = old_left;
+                        }
+
+                        if (current_y <= pol.vertices[right_down_point].Y)
+                        {
+                            int old_right = right_down_point;
+
+                            if (view[right_down_point].right == right_up_point)
+                                right_down_point = view[right_down_point].left;
+                            else
+                                right_down_point = view[right_down_point].right;
+
+                            right_up_point = old_right;
+                        }
+
+                        if (current_y <= pol.vertices[right_down_point].Y || current_y <= pol.vertices[left_down_point].Y)
+                            break;
+
+                        double x1, x2, x3, x4, y1, y2, y3, y4, z1, z2, z3, z4;
+                        x1 = pol.vertices[left_up_point].X;
+                        y1 = pol.vertices[left_up_point].Y;
+                        z1 = pol.vertices[left_up_point].Z;
+
+                        x2 = pol.vertices[left_down_point].X;
+                        y2 = pol.vertices[left_down_point].Y;
+                        z2 = pol.vertices[left_down_point].Z;
+
+                        x3 = pol.vertices[right_up_point].X;
+                        y3 = pol.vertices[right_up_point].Y;
+                        z3 = pol.vertices[right_up_point].Z;
+
+                        x4 = pol.vertices[right_down_point].X;
+                        y4 = pol.vertices[right_down_point].Y;
+                        z4 = pol.vertices[right_down_point].Z;
+
+                        double xa, za, xb, zb;
+
+                        xa = x1 + (x2 - x1) * ((current_y - y1) / (y2 - y1));
+                        xb = x3 + (x4 - x3) * ((current_y - y3) / (y4 - y3));
+                        za = z1 + (z2 - z1) * ((current_y - y1) / (y2 - y1));
+                        zb = z3 + (z4 - z3) * ((current_y - y3) / (y4 - y3));
+
+                        if (xa > xb)
+                        {
+                            double old_xa = xa, old_za = za;
+                            xa = xb;
+                            za = zb;
+                            xb = old_xa;
+                            zb = old_za;
+
+                        }
+
+                        for (double current_x = xa; current_x <= xb; current_x += step)
+                        {
+                            double current_z = za + (zb - za) * ((current_x - xa) / (xb - xa)) + pol.center.Z;
+
+                            int x, y;
+
+                            x = Convert.ToInt32(current_x + pol.center.X) + 100;
+
+                            y = Convert.ToInt32(current_y + pol.center.Y) + 100;
+
+                            if (x < 0 ||
+                                x >= pictureBox1.Image.Width ||
+                                y < 0 ||
+                                y >= pictureBox1.Image.Height)
+                                continue;
+
+                            if (current_z > Z_buf[x][y])
+                            { //этот участок можно менять
+                                Z_buf[x][y] = current_z;
+
+                                Color col = Color.White;
+
+                                double length_edg = Models.length_btw_points(pol.vertices[0], pol.vertices[1]);
+
+                                p3 = new Point(Convert.ToInt32(current_x), Convert.ToInt32(current_y));
+
+
+                                double p4_x = 0, p4_y = 0;
+
+                                Utils.fff(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y, ref p4_x, ref p4_y);
+
+                                double len_to_up = Math.Sqrt(
+                                                           Math.Pow(p4_x - current_x, 2) +
+                                                         Math.Pow(p4_y - current_y, 2));
+
+                                int x_in_im = Convert.ToInt32((image.Width / (xb - xa)) * (current_x - xa));
+                                int y_in_im = 0;
+                                if (!(p4_x == double.MinValue || p4_y == double.MinValue))
+                                {
+                                    y_in_im = Convert.ToInt32((image.Height / (height_polyg)) * (len_to_up));
+                                }
+
+                                y_in_im = Math.Min(image.Height - 1, y_in_im);
+
+                                x_in_im = Math.Min(image.Width - 1, x_in_im);
+
+                                col = image.GetPixel(x_in_im, y_in_im);
+
+                                ((Bitmap)pictureBox1.Image).SetPixel(x, y, col);
+
+                                if (Math.Abs(current_x - xa) < 1.2 || Math.Abs(xb - current_x) < 1.2)
+                                    ((Bitmap)pictureBox1.Image).SetPixel(x, y, Color.Black);
+
+                            }
+
+                        }
+                        current_y -= step;
+                    }
+                }
+            }
+            pictureBox1.Image = pictureBox1.Image;
+        }
+
+        private void radioButton5_CheckedChanged(object sender, EventArgs e)
+        {
+            draw_models();
         }
     }
 }

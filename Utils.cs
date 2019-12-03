@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 
 
 namespace Task
@@ -198,6 +199,41 @@ namespace Task
                     result[j][i] = x[j];
             }
             return result;
+        }
+
+        // нахождение точки пересечения отрезка, заданного точками p1 p2 c вертикальным/горизонтальным отрезком, заданным точками p3 p4
+        static public Point Crossing(Point p1, Point p2, Point p3, Point p4)
+        {
+            if (p3.X == p4.X)   // вертикаль
+            {
+                if (p2.X == p1.X)
+                    return new Point(0, 0);
+                double y = p1.Y + ((p2.Y - p1.Y) * (p3.X - p1.X)) / (p2.X - p1.X);
+                if (y > Math.Max(p3.Y, p4.Y) || y < Math.Min(p3.Y, p4.Y) || y > Math.Max(p1.Y, p2.Y) || y < Math.Min(p1.Y, p2.Y))   // если за пределами отрезков
+                    return new Point(0, 0);
+                else
+                    return new Point(p3.X, (int)y);
+            }
+            else            // горизонталь
+            {
+                double x = p1.X + ((p2.X - p1.X) * (p3.Y - p1.Y)) / (p2.Y - p1.Y);
+                if (x > Math.Max(p3.X, p4.X) || x < Math.Min(p3.X, p4.X) || x > Math.Max(p1.X, p2.X) || x < Math.Min(p1.X, p2.X))   // если за пределами отрезков
+                    return new Point(0, 0);
+                else
+                    return new Point((int)x, p3.Y);
+            }
+        }
+
+        //поиск точки пересечения прямой p1 p2 и перпендикуляра от точки p3
+        static public void fff(double x1, double y1, double x2, double y2, double x3, double y3, ref double x4, ref double y4)
+        {
+            if ((Math.Pow(y2 - y1, 2) + Math.Pow(x2 - x1, 2)) == 0 || (x2 - x1) == 0)
+            {
+                x4 = y4 = double.MinValue;
+                return;
+            }
+            x4 = ((x2 - x1) * (y2 - y1) * (y3 - y1) + x1 * Math.Pow(y2 - y1, 2) + x3 * Math.Pow(x2 - x1, 2)) / (Math.Pow(y2 - y1, 2) + Math.Pow(x2 - x1, 2));
+            y4 = (y2 - y1) * (x4 - x1) / (x2 - x1) + y1;
         }
 
     }

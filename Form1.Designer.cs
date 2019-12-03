@@ -76,7 +76,6 @@
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.cameraButton = new System.Windows.Forms.Button();
-            this.label11 = new System.Windows.Forms.Label();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.label12 = new System.Windows.Forms.Label();
@@ -85,9 +84,19 @@
             this.textBox11 = new System.Windows.Forms.TextBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.label13 = new System.Windows.Forms.Label();
+            this.radioButton3 = new System.Windows.Forms.RadioButton();
+            this.radioButton4 = new System.Windows.Forms.RadioButton();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.radioButton5 = new System.Windows.Forms.RadioButton();
+            this.radioButton6 = new System.Windows.Forms.RadioButton();
             this.button9 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -377,7 +386,7 @@
             // 
             this.buttonDrawSolid.Location = new System.Drawing.Point(447, 526);
             this.buttonDrawSolid.Name = "buttonDrawSolid";
-            this.buttonDrawSolid.Size = new System.Drawing.Size(189, 29);
+            this.buttonDrawSolid.Size = new System.Drawing.Size(107, 47);
             this.buttonDrawSolid.TabIndex = 37;
             this.buttonDrawSolid.Text = "Нарисовать фигуру вращения";
             this.buttonDrawSolid.UseVisualStyleBackColor = true;
@@ -406,9 +415,9 @@
             // 
             // buttonDrawPlot3D
             // 
-            this.buttonDrawPlot3D.Location = new System.Drawing.Point(447, 608);
+            this.buttonDrawPlot3D.Location = new System.Drawing.Point(447, 613);
             this.buttonDrawPlot3D.Name = "buttonDrawPlot3D";
-            this.buttonDrawPlot3D.Size = new System.Drawing.Size(189, 29);
+            this.buttonDrawPlot3D.Size = new System.Drawing.Size(123, 37);
             this.buttonDrawPlot3D.TabIndex = 40;
             this.buttonDrawPlot3D.Text = "Нарисовать сегмент поверхности";
             this.buttonDrawPlot3D.UseVisualStyleBackColor = true;
@@ -559,19 +568,10 @@
             this.cameraButton.UseVisualStyleBackColor = true;
             this.cameraButton.Click += new System.EventHandler(this.CameraButton_Click);
             // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(28, 605);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(48, 13);
-            this.label11.TabIndex = 57;
-            this.label11.Text = "Z-буфер";
-            // 
             // radioButton1
             // 
             this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(92, 587);
+            this.radioButton1.Location = new System.Drawing.Point(17, 20);
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.Size = new System.Drawing.Size(39, 17);
             this.radioButton1.TabIndex = 58;
@@ -583,7 +583,7 @@
             // 
             this.radioButton2.AutoSize = true;
             this.radioButton2.Checked = true;
-            this.radioButton2.Location = new System.Drawing.Point(92, 616);
+            this.radioButton2.Location = new System.Drawing.Point(17, 37);
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(39, 17);
             this.radioButton2.TabIndex = 59;
@@ -594,7 +594,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(701, 624);
+            this.label12.Location = new System.Drawing.Point(594, 532);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(87, 13);
             this.label12.TabIndex = 60;
@@ -602,7 +602,7 @@
             // 
             // textBox9
             // 
-            this.textBox9.Location = new System.Drawing.Point(687, 647);
+            this.textBox9.Location = new System.Drawing.Point(597, 557);
             this.textBox9.Name = "textBox9";
             this.textBox9.Size = new System.Drawing.Size(35, 20);
             this.textBox9.TabIndex = 61;
@@ -610,7 +610,7 @@
             // 
             // textBox10
             // 
-            this.textBox10.Location = new System.Drawing.Point(728, 647);
+            this.textBox10.Location = new System.Drawing.Point(638, 557);
             this.textBox10.Name = "textBox10";
             this.textBox10.Size = new System.Drawing.Size(35, 20);
             this.textBox10.TabIndex = 62;
@@ -618,7 +618,7 @@
             // 
             // textBox11
             // 
-            this.textBox11.Location = new System.Drawing.Point(769, 647);
+            this.textBox11.Location = new System.Drawing.Point(679, 556);
             this.textBox11.Name = "textBox11";
             this.textBox11.Size = new System.Drawing.Size(35, 20);
             this.textBox11.TabIndex = 63;
@@ -627,7 +627,7 @@
             // pictureBox2
             // 
             this.pictureBox2.BackColor = System.Drawing.Color.White;
-            this.pictureBox2.Location = new System.Drawing.Point(882, 641);
+            this.pictureBox2.Location = new System.Drawing.Point(629, 618);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(52, 26);
             this.pictureBox2.TabIndex = 64;
@@ -637,19 +637,98 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(835, 616);
+            this.label13.Location = new System.Drawing.Point(583, 595);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(143, 13);
             this.label13.TabIndex = 65;
             this.label13.Text = "Цвет следующего объекта";
             // 
+            // radioButton3
+            // 
+            this.radioButton3.AutoSize = true;
+            this.radioButton3.Location = new System.Drawing.Point(15, 19);
+            this.radioButton3.Name = "radioButton3";
+            this.radioButton3.Size = new System.Drawing.Size(39, 17);
+            this.radioButton3.TabIndex = 67;
+            this.radioButton3.Text = "On";
+            this.radioButton3.UseVisualStyleBackColor = true;
+            this.radioButton3.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
+            // 
+            // radioButton4
+            // 
+            this.radioButton4.AutoSize = true;
+            this.radioButton4.Checked = true;
+            this.radioButton4.Location = new System.Drawing.Point(15, 42);
+            this.radioButton4.Name = "radioButton4";
+            this.radioButton4.Size = new System.Drawing.Size(39, 17);
+            this.radioButton4.TabIndex = 68;
+            this.radioButton4.TabStop = true;
+            this.radioButton4.Text = "Off";
+            this.radioButton4.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.radioButton1);
+            this.groupBox1.Controls.Add(this.radioButton2);
+            this.groupBox1.Location = new System.Drawing.Point(31, 581);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(75, 60);
+            this.groupBox1.TabIndex = 69;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Z-буфер";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.radioButton3);
+            this.groupBox2.Controls.Add(this.radioButton4);
+            this.groupBox2.Location = new System.Drawing.Point(155, 582);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(77, 68);
+            this.groupBox2.TabIndex = 60;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Затенение";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.radioButton6);
+            this.groupBox3.Controls.Add(this.radioButton5);
+            this.groupBox3.Location = new System.Drawing.Point(750, 602);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(132, 69);
+            this.groupBox3.TabIndex = 70;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Наложение текстуры";
+            // 
+            // radioButton5
+            // 
+            this.radioButton5.AutoSize = true;
+            this.radioButton5.Location = new System.Drawing.Point(17, 19);
+            this.radioButton5.Name = "radioButton5";
+            this.radioButton5.Size = new System.Drawing.Size(39, 17);
+            this.radioButton5.TabIndex = 0;
+            this.radioButton5.Text = "On";
+            this.radioButton5.UseVisualStyleBackColor = true;
+            this.radioButton5.CheckedChanged += new System.EventHandler(this.radioButton5_CheckedChanged);
+            // 
+            // radioButton6
+            // 
+            this.radioButton6.AutoSize = true;
+            this.radioButton6.Checked = true;
+            this.radioButton6.Location = new System.Drawing.Point(17, 45);
+            this.radioButton6.Name = "radioButton6";
+            this.radioButton6.Size = new System.Drawing.Size(39, 17);
+            this.radioButton6.TabIndex = 1;
+            this.radioButton6.TabStop = true;
+            this.radioButton6.Text = "Off";
+            this.radioButton6.UseVisualStyleBackColor = true;
+            // 
             // button9
             // 
-            this.button9.Location = new System.Drawing.Point(166, 595);
+            this.button9.Location = new System.Drawing.Point(913, 614);
             this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(75, 42);
-            this.button9.TabIndex = 66;
-            this.button9.Text = "Учесть затенение";
+            this.button9.Size = new System.Drawing.Size(140, 41);
+            this.button9.TabIndex = 71;
+            this.button9.Text = "Загрузить текстуру";
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
@@ -659,15 +738,15 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1084, 749);
             this.Controls.Add(this.button9);
+            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.textBox11);
             this.Controls.Add(this.textBox10);
             this.Controls.Add(this.textBox9);
             this.Controls.Add(this.label12);
-            this.Controls.Add(this.radioButton2);
-            this.Controls.Add(this.radioButton1);
-            this.Controls.Add(this.label11);
             this.Controls.Add(this.cameraButton);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.textBox4);
@@ -722,6 +801,12 @@
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Form1_KeyPress);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -777,7 +862,6 @@
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Button cameraButton;
-        private System.Windows.Forms.Label label11;
         private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.Label label12;
@@ -786,6 +870,13 @@
         private System.Windows.Forms.TextBox textBox11;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.RadioButton radioButton3;
+        private System.Windows.Forms.RadioButton radioButton4;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.RadioButton radioButton6;
+        private System.Windows.Forms.RadioButton radioButton5;
         private System.Windows.Forms.Button button9;
     }
 }
