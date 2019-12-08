@@ -994,8 +994,7 @@ namespace Task
 
                                 //в частности настройки цвета
                                 col = colors_of_pols[i];
-
-                                double A = 1;
+                               
                                 double length_edg = Models.length_btw_points(pol.vertices[0], pol.vertices[1]);
                                 Models.PointPol current_p = new Models.PointPol(current_x, current_y, current_z);
 
@@ -1003,27 +1002,138 @@ namespace Task
 
                                 foreach (int vert in including_vertices)
                                 {
-                                    double length_to_vert = Models.length_btw_points(pol.vertices[vert], current_p);
-                                    if (lighted_vertices[vert])
+                                    int A_R, A_G, A_B, B_R, B_G, B_B;
+
+                                    Models.PointPol p_a = new Models.PointPol(xa, current_y, za);
+                                    Models.PointPol p_b = new Models.PointPol(xb, current_y, zb);
+
+                                    double len_to_a1 = Models.length_btw_points(p_a, pol.vertices[left_up_point]);
+                                    double len_to_a2 = Models.length_btw_points(p_a, pol.vertices[left_down_point]);
+
+                                    double len_to_b1 = Models.length_btw_points(p_b, pol.vertices[right_up_point]);
+                                    double len_to_b2 = Models.length_btw_points(p_b, pol.vertices[right_down_point]);
+
+                                    int A1, G1, B1, A2, G2, B2;
+
+                                    // левая точка ========================================
+
+                                    if (lighted_vertices[left_up_point])
                                     {
-                                        A = A - (length_edg / length_to_vert) / 5;
+                                        A1 = col.A; G1 = col.G; B1 = col.B;
                                     }
                                     else
                                     {
-                                        A = A + (length_edg / length_to_vert) / 5;
+                                        A1 = 0; G1 = 0; B1 = 0;
                                     }
+
+                                    if (lighted_vertices[left_down_point])
+                                    {
+                                        A2 = col.A; G2 = col.G; B2 = col.B;
+                                    }
+                                    else
+                                    {
+                                        A2 = 0; G2 = 0; B2 = 0;
+                                    }
+
+                                    double k;
+                                    k = len_to_a1/ length_edg;
+                                    
+
+                                    
+                                        A_R = Convert.ToInt32(A1 * (1-k) + A2 * (k));
+                                        A_G = Convert.ToInt32(G1 * (1-k) + G2 * (k));
+                                        A_B = Convert.ToInt32(B1 * (1-k) + B2 * (k));
+                                    
+                            
+                                    //правая точка ========================================
+
+                                    if (lighted_vertices[right_up_point])
+                                    {
+                                        A1 = col.A; G1 = col.G; B1 = col.B;
+                                    }
+                                    else
+                                    {
+                                        A1 = 0; G1 = 0; B1 = 0;
+                                    }
+
+                                    if (lighted_vertices[right_down_point])
+                                    {
+                                        A2 = col.A; G2 = col.G; B2 = col.B;
+                                    }
+                                    else
+                                    {
+                                        A2 = 0; G2 = 0; B2 = 0;
+                                    }
+
+                                    k = len_to_b1 / length_edg ;
+                                    
+
+                                    B_R = Convert.ToInt32(A1 * (1-k) + A2 * (k));
+                                    B_G = Convert.ToInt32(G1 * (1-k) + G2 * (k));
+                                    B_B = Convert.ToInt32(B1 * (1-k) + B2 * (k));
+
+
+                                    double len_from_a_to_p = Models.length_btw_points(p_a, current_p);
+                                    double len_from_b_to_p = Models.length_btw_points(p_b, current_p);
+
+                                    double len_from_a_to_b = Models.length_btw_points(p_a, p_b);
+
+                                    k = len_from_a_to_p / len_from_a_to_b;
+                                    int R_P = Convert.ToInt32((A_R * (1 - k) + B_R * (k)));
+                                    int G_P = Convert.ToInt32((A_G * (1 - k) + B_G * (k)));
+                                    int B_P = Convert.ToInt32((A_B * (1 - k) + B_B * (k)));
+
+                                    R_P = Math.Min(255, R_P);
+                                    G_P = Math.Min(255, G_P);
+                                    B_P = Math.Min(255, B_P);
+
+                                    R_P = Math.Max(0, R_P);
+                                    G_P = Math.Max(0, G_P);
+                                    B_P = Math.Max(0, B_P);
+                                    col = Color.FromArgb(R_P, G_P, B_P);
+
+                                   // double length_to_vert = Models.length_btw_points(pol.vertices[vert], current_p);
+                                    //if (lighted_vertices[vert])
+                                   // {
+                                        //A = A + (length_edg / length_to_vert)/10;
+                                    //}
+                                    //else
+                                    //{
+                                     //   A = A - (length_edg / length_to_vert)/4;
+                                    //}
                                 }
 
-                                A = Math.Min(1, A);
-                                A = Math.Max(0, A);
+                               /* A = A * 255;
 
-                                col = Color.FromArgb(Convert.ToInt32(A * 255), col);
+                                double old_r = col.R, old_g = col.G, old_b = col.B;
+                                double R = col.R, G = col.G, B = col.B;
+
+                                R += A;
+                                G += A;
+                                B += A;
+
+                                R = Math.Max(0, R);
+                                R = Math.Min(255, R);
+                                G = Math.Max(0, G);
+                                G = Math.Min(255, G);
+                                B = Math.Max(0, B);
+                                B = Math.Min(255, B);
+
+                                if (R > old_r)
+                                    R = old_r;
+                                if (G > old_g)
+                                    G = old_g;
+                                if (B > old_b)
+                                    B = old_b;*/
+
+                               // col = Color.FromArgb(Convert.ToInt32(R), Convert.ToInt32(G), Convert.ToInt32(B));
+                                //col = Color.FromArgb(Convert.ToInt32(A * 255), col);
 
                                 ((Bitmap)pictureBox1.Image).SetPixel(x, y, col);
 
                                 //и вот тут возникают проблемы из-за ширины границ
-                                if (Math.Abs(current_x - xa) < 1.2 || Math.Abs(xb - current_x) < 1.2)
-                                    ((Bitmap)pictureBox1.Image).SetPixel(x, y, Color.Black);
+                                //if (Math.Abs(current_x - xa) < 1.2 || Math.Abs(xb - current_x) < 1.2)
+                                  //  ((Bitmap)pictureBox1.Image).SetPixel(x, y, Color.Black);
 
                             }
 
